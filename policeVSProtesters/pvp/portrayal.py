@@ -11,7 +11,7 @@ def citizen_cop_portrayal(agent):
         return
 
     portrayal = {
-        "Shape": "circle",
+        "Shape": "square",
         "x": agent.pos[0],
         "y": agent.pos[1],
         "Filled": "true",

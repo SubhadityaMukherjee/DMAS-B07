@@ -74,7 +74,8 @@ class Citizen(Agent):
         Decide whether to activate, then move if applicable.
         """
         if self.jail_sentence:
-            self.jail_sentence -= 1
+            # self.jail_sentence -= 1
+            self.model.jailed_agents.append(self)
             return  # no other changes or movements if agent is in jail.
         self.update_neighbors()
         self.update_estimated_arrest_probability()
@@ -169,6 +170,7 @@ class Cop(Agent):
             arrestee = self.random.choice(active_neighbors)
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
+
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)

@@ -60,6 +60,8 @@ class EpsteinCivilViolence(Model):
         self.active_threshold = active_threshold
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
+        self.jailed_agents = []
+        self.jailed = 0
         self.max_iters = max_iters
         self.iteration = 0
         self.schedule = RandomActivation(self)
@@ -112,8 +114,26 @@ class EpsteinCivilViolence(Model):
         Advance the model by one step and collect data.
         """
         self.schedule.step()
-        # collect data
+        for i in self.jailed_agents:
+            try:
+                self.grid._remove_agent(i.pos, i)
+                self.schedule.remove(i)
+            except KeyError:
+                pass
+            finally:
+                print(f"Agents left : {len(self.schedule.agents)}")
+
         self.datacollector.collect(self)
+        # print(f"Agents left : {len(self.schedule.agents)}")
+        # for a in self.schedule.agents:
+        #     if getattr(a, "breed") == "citizen" and getattr(a, "jail_sentence") != 0:
+        #             self.schedule.remove(a)
+        #             print(f"removed agent {a.unique_id} , Agents left : {len(self.schedule.agents)}")
+        # try:
+        #     self.grid.remove_agent(a)
+        # except TypeError:
+        #     pass
+
         self.iteration += 1
         if self.iteration > self.max_iters:
             self.running = False
