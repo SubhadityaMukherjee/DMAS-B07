@@ -73,18 +73,9 @@ class Citizen(Agent):
         """
         Decide whether to activate, then move if applicable.
         """
-        # try:
-        #     if self.jail_sentence != 0:
-        #         print(self.jail_sentence)
-        #     # if self.jail_sentence < 0:
-        #     #     self.model.schedule.remove(self)
-        #     #     self.model.grid.remove_agent(self)
-        #     #     print("Removed an agent")
-        # except Exception as e:
-        #     print(e)
-
         if self.jail_sentence:
-            self.jail_sentence -= 1
+            # self.jail_sentence -= 1
+            self.model.jailed_agents.append(self)
             return  # no other changes or movements if agent is in jail.
         self.update_neighbors()
         self.update_estimated_arrest_probability()
@@ -101,14 +92,6 @@ class Citizen(Agent):
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)
-
-        if self.jail_sentence!=0:
-            # new_pos = self.random.choice(self.empty_neighbors)
-            print("moved")
-            new_pos = (0,0)
-            self.model.grid.move_agent(self, new_pos)
-
-
 
     def update_neighbors(self):
         """
@@ -183,21 +166,14 @@ class Cop(Agent):
                 and agent.jail_sentence == 0
             ):
                 active_neighbors.append(agent)
-            # else:
-            #     self.model.schedule.remove(self)
-            #     self.model.grid.remove_agent(self)
-
         if active_neighbors:
             arrestee = self.random.choice(active_neighbors)
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
 
-        # if self.model.movement and self.empty_neighbors:
-        #     # new_pos = self.random.choice(self.empty_neighbors)
-        #     print("moved")
-        #     new_pos = (0,0)
-        #     self.model.grid.move_agent(self, new_pos)
-
+        if self.model.movement and self.empty_neighbors:
+            new_pos = self.random.choice(self.empty_neighbors)
+            self.model.grid.move_agent(self, new_pos)
 
     def update_neighbors(self):
         """
