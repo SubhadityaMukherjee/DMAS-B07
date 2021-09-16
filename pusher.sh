@@ -1,7 +1,7 @@
 #!/bin/bash
 black "."
 isort .
-pdoc3 --force --html -o docs pvp
+pdoc --force --html -o docs pvp
 mv docs/pvp/index.html docs/index.md
 mv docs/pvp/* docs/
 git fetch
