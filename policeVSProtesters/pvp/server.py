@@ -1,5 +1,5 @@
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import CanvasGrid
+from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 
 from .agent import Citizen, Cop
 from .model import EpsteinCivilViolence
@@ -48,7 +48,28 @@ model_params = dict(
     max_jail_term=1000,
 )
 
+
+class AgentLeftElement(TextElement):
+    """
+    Display a text count of how many happy agents there are.
+    """
+
+    def __init__(self):
+        pass
+
+    def render(self, model):
+        stats = f"""Left agents: {str(len(model.schedule.agents))} \n Active threshold : {str(model.active_threshold)}"""
+        return stats
+
+
+chart = ChartModule(
+    [{"Label": "jailed", "Color": "Black"}], data_collector_name="datacollector"
+)
+
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
-    EpsteinCivilViolence, [canvas_element], "Epstein Civil Violence", model_params
+    EpsteinCivilViolence,
+    [canvas_element, AgentLeftElement()],
+    "Epstein Civil Violence",
+    model_params,
 )

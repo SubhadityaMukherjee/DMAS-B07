@@ -45,6 +45,7 @@ class EpsteinCivilViolence(Model):
         max_jail_term=1000,
         active_threshold=0.1,
         arrest_prob_constant=2.3,
+        # aggression=.7, #TODO
         movement=True,
         max_iters=1000,
     ):
@@ -64,6 +65,7 @@ class EpsteinCivilViolence(Model):
         self.jailed = 0
         self.max_iters = max_iters
         self.iteration = 0
+        self.aggression = self.random.random()
         self.schedule = RandomActivation(self)
         self.grid = Grid(height, width, torus=True)
         model_reporters = {
@@ -101,6 +103,7 @@ class EpsteinCivilViolence(Model):
                     risk_aversion=self.random.random(),
                     threshold=self.active_threshold,
                     vision=self.citizen_vision,
+                    aggression=self.aggression,
                 )
                 unique_id += 1
                 self.grid[y][x] = citizen
@@ -120,19 +123,7 @@ class EpsteinCivilViolence(Model):
                 self.schedule.remove(i)
             except KeyError:
                 pass
-            finally:
-                print(f"Agents left : {len(self.schedule.agents)}")
-
         self.datacollector.collect(self)
-        # print(f"Agents left : {len(self.schedule.agents)}")
-        # for a in self.schedule.agents:
-        #     if getattr(a, "breed") == "citizen" and getattr(a, "jail_sentence") != 0:
-        #             self.schedule.remove(a)
-        #             print(f"removed agent {a.unique_id} , Agents left : {len(self.schedule.agents)}")
-        # try:
-        #     self.grid.remove_agent(a)
-        # except TypeError:
-        #     pass
 
         self.iteration += 1
         if self.iteration > self.max_iters:

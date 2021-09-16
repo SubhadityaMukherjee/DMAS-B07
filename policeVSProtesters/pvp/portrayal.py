@@ -11,7 +11,7 @@ def citizen_cop_portrayal(agent):
         return
 
     portrayal = {
-        "Shape": "square",
+        "Shape": "circle",
         "x": agent.pos[0],
         "y": agent.pos[1],
         "Filled": "true",
@@ -23,11 +23,11 @@ def citizen_cop_portrayal(agent):
         )
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal["Color"] = color
-        portrayal["r"] = 0.8
+        portrayal["r"] = 0.5
         portrayal["Layer"] = 0
 
     elif isinstance(agent, Cop):
         portrayal["Color"] = COP_COLOR
-        portrayal["r"] = 0.5
+        portrayal["r"] = 0.8
         portrayal["Layer"] = 1
     return portrayal
