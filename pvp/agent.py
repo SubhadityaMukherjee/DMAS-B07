@@ -39,6 +39,7 @@ class Citizen(Agent):
         risk_aversion,
         threshold,
         vision,
+        aggression,
     ):
         """
         Create a new Citizen.
@@ -50,6 +51,7 @@ class Citizen(Agent):
             regime_legitimacy: Agent's perception of regime legitimacy, equal
                 across agents.  Exogenous.
             risk_aversion: Exogenous, drawn from U(0,1).
+            aggression : Exogenous, drawn from U(0,1).
             threshold: if (grievance - (risk_aversion * arrest_probability)) >
                 threshold, go/remain Active
             vision: number of cells in each direction (N, S, E and W) that
@@ -68,14 +70,20 @@ class Citizen(Agent):
         self.jail_sentence = 0
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
+        self.aggression = aggression
 
     def step(self):
         """
         Decide whether to activate, then move if applicable.
         """
         if self.jail_sentence:
-            self.jail_sentence -= 1
+            # self.jail_sentence -= 1
+            self.model.jailed_agents.append(self)
             return  # no other changes or movements if agent is in jail.
+
+        if self.aggression > 0.3:  # TODO
+            self.risk_aversion = self.risk_aversion / 2
+
         self.update_neighbors()
         self.update_estimated_arrest_probability()
         net_risk = self.risk_aversion * self.arrest_probability
@@ -169,6 +177,7 @@ class Cop(Agent):
             arrestee = self.random.choice(active_neighbors)
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
+
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)

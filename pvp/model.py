@@ -45,6 +45,7 @@ class EpsteinCivilViolence(Model):
         max_jail_term=1000,
         active_threshold=0.1,
         arrest_prob_constant=2.3,
+        # aggression=.7, #TODO
         movement=True,
         max_iters=1000,
     ):
@@ -60,8 +61,11 @@ class EpsteinCivilViolence(Model):
         self.active_threshold = active_threshold
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
+        self.jailed_agents = []
+        self.jailed = 0
         self.max_iters = max_iters
         self.iteration = 0
+        self.aggression = self.random.random()
         self.schedule = RandomActivation(self)
         self.grid = Grid(height, width, torus=True)
         model_reporters = {
@@ -99,6 +103,7 @@ class EpsteinCivilViolence(Model):
                     risk_aversion=self.random.random(),
                     threshold=self.active_threshold,
                     vision=self.citizen_vision,
+                    aggression=self.aggression,
                 )
                 unique_id += 1
                 self.grid[y][x] = citizen
@@ -112,8 +117,14 @@ class EpsteinCivilViolence(Model):
         Advance the model by one step and collect data.
         """
         self.schedule.step()
-        # collect data
+        for i in self.jailed_agents:
+            try:
+                self.grid._remove_agent(i.pos, i)
+                self.schedule.remove(i)
+            except KeyError:
+                pass
         self.datacollector.collect(self)
+
         self.iteration += 1
         if self.iteration > self.max_iters:
             self.running = False
