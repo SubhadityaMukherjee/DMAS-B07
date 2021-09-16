@@ -1,5 +1,11 @@
 # Protesters vs Cops
 
+## Requirements
+- pip install -r requirements.txt
+
+## Documentation
+- [Here](https://subhadityamukherjee.github.io/DMAS-B07/)
+
 ## Better commits + free documentation website :)
 - This will auto format all the codes and sort the imports so you don't have to, creates a documentation website etc
 - If you are running Linux/Mac/WSL, while pushing to the repository run
