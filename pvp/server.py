@@ -1,5 +1,6 @@
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
+from mesa.visualization.UserParam import UserSettableParameter
 
 from .agent import Citizen, Cop
 from .model import EpsteinCivilViolence
@@ -37,16 +38,32 @@ def citizen_cop_portrayal(agent):
     return portrayal
 
 
-model_params = dict(
-    height=40,
-    width=40,
-    citizen_density=0.7,
-    cop_density=0.074,
-    citizen_vision=7,
-    cop_vision=7,
-    legitimacy=0.8,
-    max_jail_term=1000,
-)
+model_params = {
+    "citizen_density": UserSettableParameter(
+        param_type="slider",
+        name="citizen density",
+        value=0.7,
+        min_value=0,
+        max_value=1,
+        step=0.01,
+        description=""
+    ),
+        "cop_density": UserSettableParameter(
+        param_type="slider",
+        name="cop density",
+        value=0.074,
+        min_value=0,
+        max_value=1,
+        step=0.001,
+        description=""
+    ),
+    "height": 40,
+    "width": 40,
+    "citizen_vision": 7,
+    "cop_vision": 7,
+    "legitimacy": 0.8,
+    "max_jail_term": 1000
+}
 
 
 class AgentLeftElement(TextElement):
