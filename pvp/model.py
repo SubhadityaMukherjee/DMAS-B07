@@ -1,3 +1,4 @@
+from random import choices
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
@@ -37,8 +38,8 @@ class EpsteinCivilViolence(Model):
         self,
         height=40,
         width=40,
-        citizen_density=0.7,
-        cop_density=0.074,
+        grid_density=0.7,
+        ratio=0.074,
         citizen_vision=7,
         cop_vision=7,
         legitimacy=0.8,
@@ -50,10 +51,11 @@ class EpsteinCivilViolence(Model):
         max_iters=1000,
     ):
         super().__init__()
+
         self.height = height
         self.width = width
-        self.citizen_density = citizen_density
-        self.cop_density = cop_density
+        self.grid_density = grid_density
+        self.ratio = ratio
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
@@ -68,6 +70,12 @@ class EpsteinCivilViolence(Model):
         self.aggression = self.random.random()
         self.schedule = RandomActivation(self)
         self.grid = Grid(height, width, torus=True)
+
+        self.numTotalSpaces = self.height * self.width
+        self.numFreeSpaces = (self.height * self.width)*self.grid_density
+        self.numCitizens = self.numFreeSpaces * self.ratio
+        self.numCops = self.numFreeSpaces - self.numCitizens
+
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
             "Active": lambda m: self.count_type_citizens(m, "Active"),
@@ -84,8 +92,41 @@ class EpsteinCivilViolence(Model):
         self.datacollector = DataCollector(
             model_reporters=model_reporters, agent_reporters=agent_reporters
         )
+        self.spawner()
+
+        self.running = True
+        self.datacollector.collect(self)
+
+    def spawner(self):
         unique_id = 0
-        if self.cop_density + self.citizen_density > 1:
+        citizenProb = self.numCitizens/self.numTotalSpaces
+        freeProb = (self.numTotalSpaces-self.numFreeSpaces)/self.numTotalSpaces
+        copProb = self.numCops/self.numTotalSpaces
+        print(self.numCitizens, self.numCops, self.numFreeSpaces)
+        for(contents, x, y) in self.grid.coord_iter():
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            if rand[0] == 1:
+                citizen = Citizen(
+                    unique_id,
+                    self,
+                    (x, y),
+                    hardship=self.random.random(),
+                    regime_legitimacy=self.legitimacy,
+                    risk_aversion=self.random.random(),
+                    threshold=self.active_threshold,
+                    vision=self.citizen_vision,
+                    aggression=self.aggression,
+                )
+                unique_id += 1
+                self.grid[y][x] = citizen
+                self.schedule.add(citizen)
+            elif rand[0] == 2:
+                cop = Cop(unique_id, self, (x, y), vision=self.cop_vision)
+                unique_id += 1
+                self.grid[y][x] = cop
+                self.schedule.add(cop)
+        '''
+        if self.cop_density + self.citizen_density > 1:  # TODO: get rid of cop and citizen density
             raise ValueError("Cop density + citizen density must be less than 1")
         for (contents, x, y) in self.grid.coord_iter():
             if self.random.random() < self.cop_density:
@@ -108,10 +149,7 @@ class EpsteinCivilViolence(Model):
                 unique_id += 1
                 self.grid[y][x] = citizen
                 self.schedule.add(citizen)
-
-        self.running = True
-        self.datacollector.collect(self)
-
+'''
     def step(self):
         """
         Advance the model by one step and collect data.

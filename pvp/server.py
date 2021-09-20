@@ -39,19 +39,19 @@ def citizen_cop_portrayal(agent):
 
 
 model_params = {
-    "citizen_density": UserSettableParameter(
+    "grid_density": UserSettableParameter( #TODO: make grid density
         param_type="slider",
-        name="citizen density",
-        value=0.7,
+        name="Grid density",
+        value=0.8,
         min_value=0,
         max_value=1,
         step=0.01,
         description=""
     ),
-        "cop_density": UserSettableParameter(
+        "ratio": UserSettableParameter( #TODO: make citizen to cop ratio
         param_type="slider",
-        name="cop density",
-        value=0.074,
+        name="Citizen to cop ratio",
+        value=0.8,
         min_value=0,
         max_value=1,
         step=0.001,
@@ -75,7 +75,15 @@ class AgentLeftElement(TextElement):
         pass
 
     def render(self, model):
-        stats = f"""Left agents: {str(len(model.schedule.agents))} \n Active threshold : {str(model.active_threshold)}"""
+        cop = 0
+        citizen = 0
+        for agent in model.schedule.agents:
+            if agent.breed == "citizen":
+                citizen += 1
+            if agent.breed == "cop":
+                cop += 1
+
+        stats = f"""Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}"""
         return stats
 
 
