@@ -62,7 +62,8 @@ model_params = {
     "citizen_vision": 7,
     "cop_vision": 7,
     "legitimacy": 0.8,
-    "max_jail_term": 1000
+    "max_jail_term": 1000,
+    "jail_capacity": 50
 }
 
 
