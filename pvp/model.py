@@ -104,7 +104,7 @@ class EpsteinCivilViolence(Model):
         citizenProb = self.numCitizens/self.numTotalSpaces
         freeProb = (self.numTotalSpaces-self.numFreeSpaces)/self.numTotalSpaces
         copProb = self.numCops/self.numTotalSpaces
-        print(self.numCitizens, self.numCops, self.numFreeSpaces)
+        print(self.numCitizens, self.numCops)
         for(contents, x, y) in self.grid.coord_iter():
             rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             if rand[0] == 1:
@@ -127,31 +127,7 @@ class EpsteinCivilViolence(Model):
                 unique_id += 1
                 self.grid[y][x] = cop
                 self.schedule.add(cop)
-        '''
-        if self.cop_density + self.citizen_density > 1:  # TODO: get rid of cop and citizen density
-            raise ValueError("Cop density + citizen density must be less than 1")
-        for (contents, x, y) in self.grid.coord_iter():
-            if self.random.random() < self.cop_density:
-                cop = Cop(unique_id, self, (x, y), vision=self.cop_vision)
-                unique_id += 1
-                self.grid[y][x] = cop
-                self.schedule.add(cop)
-            elif self.random.random() < (self.cop_density + self.citizen_density):
-                citizen = Citizen(
-                    unique_id,
-                    self,
-                    (x, y),
-                    hardship=self.random.random(),
-                    regime_legitimacy=self.legitimacy,
-                    risk_aversion=self.random.random(),
-                    threshold=self.active_threshold,
-                    vision=self.citizen_vision,
-                    aggression=self.aggression,
-                )
-                unique_id += 1
-                self.grid[y][x] = citizen
-                self.schedule.add(citizen)
-'''
+
     def step(self):
         """
         Advance the model by one step and collect data.
