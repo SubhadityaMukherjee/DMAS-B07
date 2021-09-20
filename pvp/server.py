@@ -84,7 +84,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == "cop":
                 cop += 1
 
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}"""
+        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)} \n Active threshold : {str(model.active_threshold)}"""
         return stats
 
 
