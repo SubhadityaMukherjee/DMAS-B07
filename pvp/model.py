@@ -43,6 +43,7 @@ class EpsteinCivilViolence(Model):
         cop_vision=7,
         legitimacy=0.8,
         max_jail_term=1000,
+        jail_capacity=50,
         active_threshold=0.1,
         arrest_prob_constant=2.3,
         # aggression=.7, #TODO
@@ -58,6 +59,7 @@ class EpsteinCivilViolence(Model):
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
         self.max_jail_term = max_jail_term
+        self.jail_capacity = jail_capacity
         self.active_threshold = active_threshold
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
@@ -118,11 +120,12 @@ class EpsteinCivilViolence(Model):
         """
         self.schedule.step()
         for i in self.jailed_agents:
-            try:
-                self.grid._remove_agent(i.pos, i)
-                self.schedule.remove(i)
-            except KeyError:
-                pass
+            if(len(self.jailed_agents) < self.jail_capacity):
+                try:
+                    self.grid._remove_agent(i.pos, i)
+                    self.schedule.remove(i)
+                except KeyError:
+                    pass
         self.datacollector.collect(self)
 
         self.iteration += 1
