@@ -6,8 +6,8 @@ from mesa.space import Grid
 from mesa.time import RandomActivation
 
 from .agents.block import Block
-from .agents.cop import Cop
 from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .strategies import *
 
 
@@ -85,6 +85,7 @@ class EpsteinCivilViolence(Model):
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
+        self.citizen, self.cop, self.block = None, None, None
 
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
@@ -110,24 +111,8 @@ class EpsteinCivilViolence(Model):
     def spawner(self):
         self.unique_id = 0
         print(self.numCitizens, self.numCops)
-        for (_, x, y) in self.grid.coord_iter():
-            self.x, self.y = x, y
-            self.citizen = Citizen(
-                self.unique_id,
-                self,
-                (x, y),
-                hardship=self.random.random(),
-                regime_legitimacy=self.legitimacy,
-                risk_aversion=self.random.random(),
-                threshold=self.active_threshold,
-                vision=self.citizen_vision,
-                aggression=self.aggression,
-            )
-
-            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-            self.block = Block(self.unique_id, self, (x, y))
-
-            out = random_strategy(self)
+        # out = random_strategy(self)
+        side_strategy(self, "left", "cop")
 
     def step(self):
         """

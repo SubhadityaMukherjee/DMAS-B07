@@ -3,8 +3,8 @@ from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
 from .agents.block import Block
-from .agents.cop import Cop
 from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .model import EpsteinCivilViolence
 
 COP_COLOR = "#000000"

@@ -33,7 +33,9 @@ from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
 
-from .agent import Block, Citizen, Cop
+from .agents.block import Block
+from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .strategies import *
 
 
@@ -107,10 +109,11 @@ class EpsteinCivilViolence(Model):
         self.grid = Grid(height, width, torus=True)
 
         self.numTotalSpaces = self.height * self.width
-        self.numFreeSpaces = (self.height * self.width) * self.grid_density
+        self.numFreeSpaces = (self.height * self.width) * self.grid_density - barricade
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
+        self.citizen, self.cop, self.block = None, None, None
 
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
@@ -136,24 +139,8 @@ class EpsteinCivilViolence(Model):
     def spawner(self):
         self.unique_id = 0
         print(self.numCitizens, self.numCops)
-        for (_, x, y) in self.grid.coord_iter():
-            self.x, self.y = x, y
-            self.citizen = Citizen(
-                self.unique_id,
-                self,
-                (x, y),
-                hardship=self.random.random(),
-                regime_legitimacy=self.legitimacy,
-                risk_aversion=self.random.random(),
-                threshold=self.active_threshold,
-                vision=self.citizen_vision,
-                aggression=self.aggression,
-            )
-
-            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-            self.block = Block(self.unique_id, self, (x, y))
-
-            out = random_strategy(self)
+        # out = random_strategy(self)
+        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
 
     def step(self):
         &#34;&#34;&#34;
@@ -335,10 +322,11 @@ start the model.</p>
         self.grid = Grid(height, width, torus=True)
 
         self.numTotalSpaces = self.height * self.width
-        self.numFreeSpaces = (self.height * self.width) * self.grid_density
+        self.numFreeSpaces = (self.height * self.width) * self.grid_density - barricade
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
+        self.citizen, self.cop, self.block = None, None, None
 
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
@@ -364,24 +352,8 @@ start the model.</p>
     def spawner(self):
         self.unique_id = 0
         print(self.numCitizens, self.numCops)
-        for (_, x, y) in self.grid.coord_iter():
-            self.x, self.y = x, y
-            self.citizen = Citizen(
-                self.unique_id,
-                self,
-                (x, y),
-                hardship=self.random.random(),
-                regime_legitimacy=self.legitimacy,
-                risk_aversion=self.random.random(),
-                threshold=self.active_threshold,
-                vision=self.citizen_vision,
-                aggression=self.aggression,
-            )
-
-            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-            self.block = Block(self.unique_id, self, (x, y))
-
-            out = random_strategy(self)
+        # out = random_strategy(self)
+        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
 
     def step(self):
         &#34;&#34;&#34;
@@ -494,24 +466,8 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 <pre><code class="python">def spawner(self):
     self.unique_id = 0
     print(self.numCitizens, self.numCops)
-    for (_, x, y) in self.grid.coord_iter():
-        self.x, self.y = x, y
-        self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-        )
-
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        self.block = Block(self.unique_id, self, (x, y))
-
-        out = random_strategy(self)</code></pre>
+    # out = random_strategy(self)
+    side_strategy(self, &#34;left&#34;, &#34;cop&#34;)</code></pre>
 </details>
 </dd>
 <dt id="pvp.model.EpsteinCivilViolence.step"><code class="name flex">

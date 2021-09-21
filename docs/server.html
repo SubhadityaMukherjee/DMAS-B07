@@ -30,7 +30,9 @@
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from .agent import Block, Citizen, Cop
+from .agents.block import Block
+from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .model import EpsteinCivilViolence
 
 COP_COLOR = &#34;#000000&#34;
@@ -61,8 +63,10 @@ def citizen_cop_portrayal(agent):
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Block:
+        portrayal[&#34;Shape&#34;] = &#34;rect&#34;
         portrayal[&#34;Color&#34;] = BARRICADE_COLOR
-        portrayal[&#34;r&#34;] = 1
+        portrayal[&#34;h&#34;] = 0.9
+        portrayal[&#34;w&#34;] = 0.9
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Cop:
@@ -176,8 +180,10 @@ server = ModularServer(
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Block:
+        portrayal[&#34;Shape&#34;] = &#34;rect&#34;
         portrayal[&#34;Color&#34;] = BARRICADE_COLOR
-        portrayal[&#34;r&#34;] = 1
+        portrayal[&#34;h&#34;] = 0.9
+        portrayal[&#34;w&#34;] = 0.9
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Cop:
