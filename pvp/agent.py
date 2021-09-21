@@ -196,6 +196,10 @@ class Cop(Agent):
 
 
 class Block(Agent):
+    """
+    Using Block as an agent instead. Allows for flexibility and can be easily tied in to further strategies without changing much
+    """
+
     def __init__(
         self,
         unique_id,
@@ -209,4 +213,7 @@ class Block(Agent):
         self.condition = None
 
     def step(self):
+        """
+        This would disable it moving and be fixed
+        """
         pass
