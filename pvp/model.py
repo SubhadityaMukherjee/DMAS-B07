@@ -5,7 +5,9 @@ from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
 
-from .agent import Block, Citizen, Cop
+from .agents.block import Block
+from .agents.cop import Cop
+from .agents.citizen import Citizen
 from .strategies import *
 
 
@@ -79,7 +81,7 @@ class EpsteinCivilViolence(Model):
         self.grid = Grid(height, width, torus=True)
 
         self.numTotalSpaces = self.height * self.width
-        self.numFreeSpaces = (self.height * self.width) * self.grid_density
+        self.numFreeSpaces = (self.height * self.width) * self.grid_density - barricade
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade

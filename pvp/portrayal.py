@@ -1,4 +1,6 @@
-from .agent import Citizen, Cop
+from .agents.block import Block
+from .agents.cop import Cop
+from .agents.citizen import Citizen
 
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"

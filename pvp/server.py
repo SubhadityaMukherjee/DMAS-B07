@@ -2,7 +2,9 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from .agent import Block, Citizen, Cop
+from .agents.block import Block
+from .agents.cop import Cop
+from .agents.citizen import Citizen
 from .model import EpsteinCivilViolence
 
 COP_COLOR = "#000000"

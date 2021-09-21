@@ -6,7 +6,9 @@ from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
 
-from .agent import Block, Citizen, Cop
+from .agents.block import Block
+from .agents.cop import Cop
+from .agents.citizen import Citizen
 
 
 def grid_adder(self, atype):
@@ -17,7 +19,7 @@ def grid_adder(self, atype):
 
 def random_strategy(self):
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - self.numFreeSpaces - self.barricade) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
