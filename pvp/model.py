@@ -112,7 +112,8 @@ class EpsteinCivilViolence(Model):
         self.unique_id = 0
         print(self.numCitizens, self.numCops)
         # out = random_strategy(self)
-        side_strategy(self, "left", "cop")
+        #side_strategy(self, "left", "cop")
+        middle_block(self)
 
     def step(self):
         """
