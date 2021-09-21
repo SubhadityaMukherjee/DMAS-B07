@@ -193,3 +193,20 @@ class Cop(Agent):
         self.empty_neighbors = [
             c for c in self.neighborhood if self.model.grid.is_cell_empty(c)
         ]
+
+
+class Block(Agent):
+    def __init__(
+        self,
+        unique_id,
+        model,
+        pos,
+    ):
+        super().__init__(unique_id, model)
+        self.pos = pos
+        self.breed = "Block"
+        self.jail_sentence = None
+        self.condition = None
+
+    def step(self):
+        pass
