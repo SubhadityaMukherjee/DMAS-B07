@@ -69,7 +69,9 @@ model_params = {
     "cop_vision": 7,
     "legitimacy": 0.8,
     "max_jail_term": 1000,
-    "jail_capacity": 50,
+    "jail_capacity": 500,
+    "strategy": "random",
+    "barricade": 50,
 }
 
 
@@ -84,13 +86,15 @@ class AgentLeftElement(TextElement):
     def render(self, model):
         cop = 0
         citizen = 0
+        block = 0
         for agent in model.schedule.agents:
             if agent.breed == "citizen":
                 citizen += 1
             if agent.breed == "cop":
                 cop += 1
-
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}"""
+            if agent.breed == "Block":
+                block += 1
+        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}"""
         return stats
 
 

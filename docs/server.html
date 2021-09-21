@@ -97,7 +97,9 @@ model_params = {
     &#34;cop_vision&#34;: 7,
     &#34;legitimacy&#34;: 0.8,
     &#34;max_jail_term&#34;: 1000,
-    &#34;jail_capacity&#34;: 50,
+    &#34;jail_capacity&#34;: 500,
+    &#34;strategy&#34;: &#34;random&#34;,
+    &#34;barricade&#34;: 50,
 }
 
 
@@ -112,13 +114,15 @@ class AgentLeftElement(TextElement):
     def render(self, model):
         cop = 0
         citizen = 0
+        block = 0
         for agent in model.schedule.agents:
             if agent.breed == &#34;citizen&#34;:
                 citizen += 1
             if agent.breed == &#34;cop&#34;:
                 cop += 1
-
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}&#34;&#34;&#34;
+            if agent.breed == &#34;Block&#34;:
+                block += 1
+        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
         return stats
 
 
@@ -208,13 +212,15 @@ server = ModularServer(
     def render(self, model):
         cop = 0
         citizen = 0
+        block = 0
         for agent in model.schedule.agents:
             if agent.breed == &#34;citizen&#34;:
                 citizen += 1
             if agent.breed == &#34;cop&#34;:
                 cop += 1
-
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}&#34;&#34;&#34;
+            if agent.breed == &#34;Block&#34;:
+                block += 1
+        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
         return stats</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -243,13 +249,15 @@ server = ModularServer(
 <pre><code class="python">def render(self, model):
     cop = 0
     citizen = 0
+    block = 0
     for agent in model.schedule.agents:
         if agent.breed == &#34;citizen&#34;:
             citizen += 1
         if agent.breed == &#34;cop&#34;:
             cop += 1
-
-    stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops:{str(cop)} \n Active threshold : {str(model.active_threshold)}&#34;&#34;&#34;
+        if agent.breed == &#34;Block&#34;:
+            block += 1
+    stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
     return stats</code></pre>
 </details>
 </dd>

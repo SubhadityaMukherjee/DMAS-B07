@@ -49,6 +49,7 @@ class EpsteinCivilViolence(Model):
         max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.1,
+        strategy="random",
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
         movement=True,
@@ -70,6 +71,7 @@ class EpsteinCivilViolence(Model):
         self.movement = movement
         self.jailed_agents = []
         self.jailed = 0
+        self.strategy = strategy
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -80,7 +82,7 @@ class EpsteinCivilViolence(Model):
         self.numFreeSpaces = (self.height * self.width) * self.grid_density
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
-        self.barricade = self.numCops
+        self.barricade = barricade
 
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
@@ -105,37 +107,25 @@ class EpsteinCivilViolence(Model):
 
     def spawner(self):
         self.unique_id = 0
-        citizenProb = self.numCitizens / self.numTotalSpaces
-        freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
-        copProb = self.numCops / self.numTotalSpaces
-        blockProb = self.barricade / self.numTotalSpaces
         print(self.numCitizens, self.numCops)
         for (_, x, y) in self.grid.coord_iter():
-            # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
-            # if rand[0] == 1:
-            #     citizen = Citizen(
-            #         unique_id,
-            #         self,
-            #         (x, y),
-            #         hardship=self.random.random(),
-            #         regime_legitimacy=self.legitimacy,
-            #         risk_aversion=self.random.random(),
-            #         threshold=self.active_threshold,
-            #         vision=self.citizen_vision,
-            #         aggression=self.aggression,
-            #     )
-            #     self.grid[y][x] = citizen
-            #     self.schedule.add(citizen)
-            # elif rand[0] == 2:
-            #     cop = Cop(unique_id, self, (x, y), vision=self.cop_vision)
-            #     self.grid[y][x] = cop
-            #     self.schedule.add(cop)
-            # elif rand[0] == 3:
-            #     block = Block(unique_id, self, (x, y))
-            #     self.grid[y][x] = block
-            #     self.schedule.add(block)
-            out = random_strategy(self, x, y, freeProb, citizenProb, copProb, blockProb)
-            # unique_id +=1
+            self.x, self.y = x, y
+            self.citizen = Citizen(
+                self.unique_id,
+                self,
+                (x, y),
+                hardship=self.random.random(),
+                regime_legitimacy=self.legitimacy,
+                risk_aversion=self.random.random(),
+                threshold=self.active_threshold,
+                vision=self.citizen_vision,
+                aggression=self.aggression,
+            )
+
+            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+            self.block = Block(self.unique_id, self, (x, y))
+
+            out = random_strategy(self)
 
     def step(self):
         """
