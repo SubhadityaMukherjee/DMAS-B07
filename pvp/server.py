@@ -33,8 +33,10 @@ def citizen_cop_portrayal(agent):
         portrayal["Layer"] = 0
 
     elif type(agent) is Block:
+        portrayal["Shape"] = "rect"
         portrayal["Color"] = BARRICADE_COLOR
-        portrayal["r"] = 1
+        portrayal["h"] = 0.9
+        portrayal["w"] = 0.9
         portrayal["Layer"] = 0
 
     elif type(agent) is Cop:
