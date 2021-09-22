@@ -31,15 +31,21 @@ def grid_adder(self, atype):
 
 
 def middle_block(self):
-    citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces - self.barricade) / self.numTotalSpaces
-    copProb = self.numCops / self.numTotalSpaces
-    blockProb = self.barricade / self.numTotalSpaces
-
-    x_start = self.width / 4
-    y_start = self.height / 4
+    x_start = self.width / 3
+    y_start = self.height / 3
     x_end = self.width - x_start
     y_end = self.height - y_start
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if x_start <= x <= x_end and y_start <= y <= y_end:
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
@@ -53,15 +59,10 @@ def middle_block(self):
             vision=self.citizen_vision,
             aggression=self.aggression,
         )
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        self.block = Block(self.unique_id, self, (x, y))
-
         self.x, self.y = x, y
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-
-        if x_start <= x <= x_end and y_start <= y <= y_end:
-            grid_adder(self, agent_dict[3])
-        else:
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x < x_start or x > x_end or y < y_start or y > y_end:
             rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
 
