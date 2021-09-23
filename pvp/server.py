@@ -67,6 +67,13 @@ model_params = {
         step=0.001,
         description="",
     ),
+    "environment": UserSettableParameter(
+        param_type="choice",
+        name="Environment",
+        value="Random distribution",
+        choices=["Random distribution", "Block in the middle", "Wall of cops"],
+        description="",
+    ),
     "height": 40,
     "width": 40,
     "citizen_vision": 7,

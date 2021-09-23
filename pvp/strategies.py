@@ -30,7 +30,7 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):
+def middle_block(self): # walk around / block in the middle
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -68,7 +68,7 @@ def middle_block(self):
             grid_adder(self, agent_dict[rand[0]])
 
 
-def random_strategy(self):
+def random_strategy(self): # random distribution
     """
     Randomly places objects (original)
     """
@@ -104,7 +104,7 @@ def random_strategy(self):
 
 
 # %%
-def side_strategy(self, side="left", agent="cop"):
+def side_strategy(self, side="left", agent="cop"): # wall of cops
     """
     Left/right side : all of one type (eg all cops on the left)
     Rest filled randomly
