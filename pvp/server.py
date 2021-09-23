@@ -5,7 +5,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
-from .model import EpsteinCivilViolence
+from .model import ProtestersVsPolice
 
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"
@@ -108,8 +108,8 @@ chart = ChartModule(
 
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
-    EpsteinCivilViolence,
+    ProtestersVsPolice,
     [canvas_element, AgentLeftElement()],
-    "Epstein Civil Violence",
+    "Protesters vs Police",
     model_params,
 )

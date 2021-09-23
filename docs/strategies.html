@@ -26,7 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">#%%
+<pre><code class="python"># %%
 from functools import partial
 from random import choices
 
@@ -38,7 +38,7 @@ from mesa.time import RandomActivation
 
 from .agents import *
 
-#%%
+# %%
 
 # TODO
 &#34;&#34;&#34;
@@ -58,13 +58,53 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
+def middle_block(self):
+    x_start = self.width / 3
+    y_start = self.height / 3
+    x_end = self.width - x_start
+    y_end = self.height - y_start
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            grid_adder(self, agent_dict[rand[0]])
+
+
 def random_strategy(self):
     &#34;&#34;&#34;
     Randomly places objects (original)
     &#34;&#34;&#34;
 
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -91,7 +131,7 @@ def random_strategy(self):
         grid_adder(self, agent_dict[rand[0]])
 
 
-#%%
+# %%
 def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
     &#34;&#34;&#34;
     Left/right side : all of one type (eg all cops on the left)
@@ -110,7 +150,9 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
 
     self.temp_grid = np.reshape(self.temp_grid, (h, w))
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -130,7 +172,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
 
-        agent_dict = {1: self.citizen, 2: self.cop, 3: self.block}
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
 
         self.x, self.y = x, y
 
@@ -138,12 +180,11 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
             grid_adder(self, agent_dict[2])
 
         else:
-            rand = choices([1, 3], [citizenProb, blockProb])
-
+            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])
 
 
-#%%
+# %%
 # gr = np.zeros((10,10))
 # b = 5
 # c = 10
@@ -182,6 +223,53 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
         self.schedule.add(atype)</code></pre>
 </details>
 </dd>
+<dt id="pvp.strategies.middle_block"><code class="name flex">
+<span>def <span class="ident">middle_block</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def middle_block(self):
+    x_start = self.width / 3
+    y_start = self.height / 3
+    x_end = self.width - x_start
+    y_end = self.height - y_start
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            grid_adder(self, agent_dict[rand[0]])</code></pre>
+</details>
+</dd>
 <dt id="pvp.strategies.random_strategy"><code class="name flex">
 <span>def <span class="ident">random_strategy</span></span>(<span>self)</span>
 </code></dt>
@@ -197,7 +285,9 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
     &#34;&#34;&#34;
 
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -255,7 +345,9 @@ Reshape back</p></div>
 
     self.temp_grid = np.reshape(self.temp_grid, (h, w))
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -275,7 +367,7 @@ Reshape back</p></div>
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
 
-        agent_dict = {1: self.citizen, 2: self.cop, 3: self.block}
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
 
         self.x, self.y = x, y
 
@@ -283,8 +375,7 @@ Reshape back</p></div>
             grid_adder(self, agent_dict[2])
 
         else:
-            rand = choices([1, 3], [citizenProb, blockProb])
-
+            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
 </dd>
@@ -307,6 +398,7 @@ Reshape back</p></div>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pvp.strategies.grid_adder" href="#pvp.strategies.grid_adder">grid_adder</a></code></li>
+<li><code><a title="pvp.strategies.middle_block" href="#pvp.strategies.middle_block">middle_block</a></code></li>
 <li><code><a title="pvp.strategies.random_strategy" href="#pvp.strategies.random_strategy">random_strategy</a></code></li>
 <li><code><a title="pvp.strategies.side_strategy" href="#pvp.strategies.side_strategy">side_strategy</a></code></li>
 </ul>

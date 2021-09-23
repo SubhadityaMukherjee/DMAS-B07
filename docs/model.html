@@ -39,7 +39,7 @@ from .agents.cop import Cop
 from .strategies import *
 
 
-class EpsteinCivilViolence(Model):
+class ProtestersVsPolice(Model):
     &#34;&#34;&#34;
     Model 1 from &#34;Modeling civil violence: An agent-based computational
     approach,&#34; by Joshua Epstein.
@@ -138,9 +138,9 @@ class EpsteinCivilViolence(Model):
 
     def spawner(self):
         self.unique_id = 0
-        print(self.numCitizens, self.numCops)
         # out = random_strategy(self)
-        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        # side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        middle_block(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -196,8 +196,8 @@ class EpsteinCivilViolence(Model):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="pvp.model.EpsteinCivilViolence"><code class="flex name class">
-<span>class <span class="ident">EpsteinCivilViolence</span></span>
+<dt id="pvp.model.ProtestersVsPolice"><code class="flex name class">
+<span>class <span class="ident">ProtestersVsPolice</span></span>
 <span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, strategy='random', arrest_prob_constant=2.3, aggression=0.7, movement=True, max_iters=1000)</span>
 </code></dt>
 <dd>
@@ -252,7 +252,7 @@ start the model.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class EpsteinCivilViolence(Model):
+<pre><code class="python">class ProtestersVsPolice(Model):
     &#34;&#34;&#34;
     Model 1 from &#34;Modeling civil violence: An agent-based computational
     approach,&#34; by Joshua Epstein.
@@ -351,9 +351,9 @@ start the model.</p>
 
     def spawner(self):
         self.unique_id = 0
-        print(self.numCitizens, self.numCops)
         # out = random_strategy(self)
-        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        # side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        middle_block(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -405,7 +405,7 @@ start the model.</p>
 </ul>
 <h3>Static methods</h3>
 <dl>
-<dt id="pvp.model.EpsteinCivilViolence.count_jailed"><code class="name flex">
+<dt id="pvp.model.ProtestersVsPolice.count_jailed"><code class="name flex">
 <span>def <span class="ident">count_jailed</span></span>(<span>model)</span>
 </code></dt>
 <dd>
@@ -426,7 +426,7 @@ def count_jailed(model):
     return count</code></pre>
 </details>
 </dd>
-<dt id="pvp.model.EpsteinCivilViolence.count_type_citizens"><code class="name flex">
+<dt id="pvp.model.ProtestersVsPolice.count_type_citizens"><code class="name flex">
 <span>def <span class="ident">count_type_citizens</span></span>(<span>model, condition, exclude_jailed=True)</span>
 </code></dt>
 <dd>
@@ -454,7 +454,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="pvp.model.EpsteinCivilViolence.spawner"><code class="name flex">
+<dt id="pvp.model.ProtestersVsPolice.spawner"><code class="name flex">
 <span>def <span class="ident">spawner</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -465,12 +465,12 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 </summary>
 <pre><code class="python">def spawner(self):
     self.unique_id = 0
-    print(self.numCitizens, self.numCops)
     # out = random_strategy(self)
-    side_strategy(self, &#34;left&#34;, &#34;cop&#34;)</code></pre>
+    # side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+    middle_block(self)</code></pre>
 </details>
 </dd>
-<dt id="pvp.model.EpsteinCivilViolence.step"><code class="name flex">
+<dt id="pvp.model.ProtestersVsPolice.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -517,12 +517,12 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pvp.model.EpsteinCivilViolence" href="#pvp.model.EpsteinCivilViolence">EpsteinCivilViolence</a></code></h4>
+<h4><code><a title="pvp.model.ProtestersVsPolice" href="#pvp.model.ProtestersVsPolice">ProtestersVsPolice</a></code></h4>
 <ul class="">
-<li><code><a title="pvp.model.EpsteinCivilViolence.count_jailed" href="#pvp.model.EpsteinCivilViolence.count_jailed">count_jailed</a></code></li>
-<li><code><a title="pvp.model.EpsteinCivilViolence.count_type_citizens" href="#pvp.model.EpsteinCivilViolence.count_type_citizens">count_type_citizens</a></code></li>
-<li><code><a title="pvp.model.EpsteinCivilViolence.spawner" href="#pvp.model.EpsteinCivilViolence.spawner">spawner</a></code></li>
-<li><code><a title="pvp.model.EpsteinCivilViolence.step" href="#pvp.model.EpsteinCivilViolence.step">step</a></code></li>
+<li><code><a title="pvp.model.ProtestersVsPolice.count_jailed" href="#pvp.model.ProtestersVsPolice.count_jailed">count_jailed</a></code></li>
+<li><code><a title="pvp.model.ProtestersVsPolice.count_type_citizens" href="#pvp.model.ProtestersVsPolice.count_type_citizens">count_type_citizens</a></code></li>
+<li><code><a title="pvp.model.ProtestersVsPolice.spawner" href="#pvp.model.ProtestersVsPolice.spawner">spawner</a></code></li>
+<li><code><a title="pvp.model.ProtestersVsPolice.step" href="#pvp.model.ProtestersVsPolice.step">step</a></code></li>
 </ul>
 </li>
 </ul>
