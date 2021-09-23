@@ -44,6 +44,7 @@ class ProtestersVsPolice(Model):
         width=40,
         grid_density=0.7,
         ratio=0.074,
+        environment="Random distribution",
         barricade=4,
         citizen_vision=7,
         cop_vision=7,
@@ -79,6 +80,7 @@ class ProtestersVsPolice(Model):
         self.aggression = self.random.random()
         self.schedule = RandomActivation(self)
         self.grid = Grid(height, width, torus=True)
+        self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
         self.numFreeSpaces = (self.height * self.width) * self.grid_density - barricade
@@ -110,9 +112,12 @@ class ProtestersVsPolice(Model):
 
     def spawner(self):
         self.unique_id = 0
-        # out = random_strategy(self)
-        # side_strategy(self, "left", "cop")
-        middle_block(self)
+        if self.environment == "Random distribution":
+            out = random_strategy(self)
+        elif self.environment == "Block in the middle":
+            side_strategy(self, "left", "cop")
+        elif self.environment == "Wall of cops":
+            middle_block(self)
 
     def step(self):
         """

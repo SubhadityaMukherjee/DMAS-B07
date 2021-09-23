@@ -61,14 +61,14 @@ class Citizen(Agent):
         super().__init__(unique_id, model)
         self.breed = "citizen"
         self.pos = pos
-        # self.hardship = hardship
-        # self.regime_legitimacy = regime_legitimacy
+        self.hardship = hardship
+        self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
         self.condition = "Quiescent"
         self.vision = vision
         self.jail_sentence = 0
-        # self.grievance = self.hardship * (1 - self.regime_legitimacy)
+        self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
         self.susceptibility_to_aggression = self.random.random()
@@ -91,25 +91,25 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == "Quiescent"
-            and (self.susceptibility_to_aggression - self.arrest_probability)
+            and (net_risk - self.arrest_probability)
             > self.threshold
         ):
             self.condition = "Active"
         elif (
             self.condition == "Active"
-            and (self.susceptibility_to_aggression - self.arrest_probability)
+            and (net_risk - self.arrest_probability)
             <= self.threshold
         ):
             self.condition = "Quiescent"
 
-        swap = False
+        '''swap = False
         for agent in self.neighbors:
             if agent.breed == "citizen" and agent.jail_sentence > 0:
                 swap = True
                 break
 
         if self.susceptibility_to_aggression > 0.8 and swap:
-            self.condition = "Active"
+            self.condition = "Active"'''
 
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
