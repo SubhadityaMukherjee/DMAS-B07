@@ -110,8 +110,7 @@ class EpsteinCivilViolence(Model):
 
     def spawner(self):
         self.unique_id = 0
-        print(self.numCitizens, self.numCops)
-        # out = random_strategy(self)
+        #out = random_strategy(self)
         #side_strategy(self, "left", "cop")
         middle_block(self)
 

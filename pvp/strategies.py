@@ -44,8 +44,9 @@ def middle_block(self):
 
     free = (self.numTotalSpaces * self.grid_density) - num_blocks
     citizenProb = (free * self.ratio) / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - free) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
