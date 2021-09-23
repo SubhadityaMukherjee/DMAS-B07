@@ -115,9 +115,9 @@ class ProtestersVsPolice(Model):
         if self.environment == "Random distribution":
             out = random_strategy(self)
         elif self.environment == "Block in the middle":
-            side_strategy(self, "left", "cop")
-        elif self.environment == "Wall of cops":
             middle_block(self)
+        elif self.environment == "Wall of cops":
+            side_strategy(self, "left", "cop")
 
     def step(self):
         """
