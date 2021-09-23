@@ -74,7 +74,9 @@ def random_strategy(self):
     """
 
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces - self.barricade) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -116,11 +118,13 @@ def side_strategy(self, side="left", agent="cop"):
     if side == "left":  # Set cops
         self.temp_grid[: int(self.numCops)] = 2
     else:
-        self.temp_grid[-int(self.numCops):] = 2
+        self.temp_grid[-int(self.numCops) :] = 2
 
     self.temp_grid = np.reshape(self.temp_grid, (h, w))
     citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - self.numFreeSpaces - self.barricade) / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -150,6 +154,7 @@ def side_strategy(self, side="left", agent="cop"):
         else:
             rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])
+
 
 # %%
 # gr = np.zeros((10,10))

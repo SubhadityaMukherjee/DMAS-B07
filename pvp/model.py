@@ -11,7 +11,7 @@ from .agents.cop import Cop
 from .strategies import *
 
 
-class EpsteinCivilViolence(Model):
+class ProtestersVsPolice(Model):
     """
     Model 1 from "Modeling civil violence: An agent-based computational
     approach," by Joshua Epstein.
@@ -110,8 +110,8 @@ class EpsteinCivilViolence(Model):
 
     def spawner(self):
         self.unique_id = 0
-        #out = random_strategy(self)
-        #side_strategy(self, "left", "cop")
+        # out = random_strategy(self)
+        # side_strategy(self, "left", "cop")
         middle_block(self)
 
     def step(self):
