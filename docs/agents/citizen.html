@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>pvp.agent API documentation</title>
+<title>pvp.agents.citizen API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>pvp.agent</code></h1>
+<h1 class="title">Module <code>pvp.agents.citizen</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -89,16 +89,17 @@ class Citizen(Agent):
         super().__init__(unique_id, model)
         self.breed = &#34;citizen&#34;
         self.pos = pos
-        self.hardship = hardship
-        self.regime_legitimacy = regime_legitimacy
+        # self.hardship = hardship
+        # self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
-        self.grievance = self.hardship * (1 - self.regime_legitimacy)
+        # self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
+        self.susceptibility_to_aggression = self.random.random()
 
     def step(self):
         &#34;&#34;&#34;
@@ -114,16 +115,30 @@ class Citizen(Agent):
 
         self.update_neighbors()
         self.update_estimated_arrest_probability()
+
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (self.grievance - net_risk) &gt; self.threshold
+            and (self.susceptibility_to_aggression - self.arrest_probability)
+            &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
-            self.condition == &#34;Active&#34; and (self.grievance - net_risk) &lt;= self.threshold
+            self.condition == &#34;Active&#34;
+            and (self.susceptibility_to_aggression - self.arrest_probability)
+            &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
+
+        swap = False
+        for agent in self.neighbors:
+            if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
+                swap = True
+                break
+
+        if self.susceptibility_to_aggression &gt; 0.8 and swap:
+            self.condition = &#34;Active&#34;
+
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)
@@ -157,94 +172,7 @@ class Citizen(Agent):
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
-        )
-
-
-class Cop(Agent):
-    &#34;&#34;&#34;
-    A cop for life.  No defection.
-    Summary of rule: Inspect local vision and arrest a random active agent.
-
-    Attributes:
-        unique_id: unique int
-        x, y: Grid coordinates
-        vision: number of cells in each direction (N, S, E and W) that cop is
-            able to inspect
-    &#34;&#34;&#34;
-
-    def __init__(self, unique_id, model, pos, vision):
-        &#34;&#34;&#34;
-        Create a new Cop.
-        Args:
-            unique_id: unique int
-            x, y: Grid coordinates
-            vision: number of cells in each direction (N, S, E and W) that
-                agent can inspect. Exogenous.
-            model: model instance
-        &#34;&#34;&#34;
-        super().__init__(unique_id, model)
-        self.breed = &#34;cop&#34;
-        self.pos = pos
-        self.vision = vision
-
-    def step(self):
-        &#34;&#34;&#34;
-        Inspect local vision and arrest a random active agent. Move if
-        applicable.
-        &#34;&#34;&#34;
-        self.update_neighbors()
-        active_neighbors = []
-        for agent in self.neighbors:
-            if (
-                agent.breed == &#34;citizen&#34;
-                and agent.condition == &#34;Active&#34;
-                and agent.jail_sentence == 0
-            ):
-                active_neighbors.append(agent)
-        if active_neighbors:
-            arrestee = self.random.choice(active_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)
-            arrestee.jail_sentence = sentence
-
-        if self.model.movement and self.empty_neighbors:
-            new_pos = self.random.choice(self.empty_neighbors)
-            self.model.grid.move_agent(self, new_pos)
-
-    def update_neighbors(self):
-        &#34;&#34;&#34;
-        Look around and see who my neighbors are.
-        &#34;&#34;&#34;
-        self.neighborhood = self.model.grid.get_neighborhood(
-            self.pos, moore=False, radius=1
-        )
-        self.neighbors = self.model.grid.get_cell_list_contents(self.neighborhood)
-        self.empty_neighbors = [
-            c for c in self.neighborhood if self.model.grid.is_cell_empty(c)
-        ]
-
-
-class Block(Agent):
-    &#34;&#34;&#34;
-    Using Block as an agent instead. Allows for flexibility and can be easily tied in to further strategies without changing much
-    &#34;&#34;&#34;
-
-    def __init__(
-        self,
-        unique_id,
-        model,
-        pos,
-    ):
-        super().__init__(unique_id, model)
-        self.pos = pos
-        self.breed = &#34;Block&#34;
-        self.jail_sentence = None
-        self.condition = None
-
-    def step(self):
-        &#34;&#34;&#34;
-        This would disable it moving and be fixed
-        &#34;&#34;&#34;
-        pass</code></pre>
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -256,65 +184,7 @@ class Block(Agent):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="pvp.agent.Block"><code class="flex name class">
-<span>class <span class="ident">Block</span></span>
-<span>(</span><span>unique_id, model, pos)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Using Block as an agent instead. Allows for flexibility and can be easily tied in to further strategies without changing much</p>
-<p>Create a new agent.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Block(Agent):
-    &#34;&#34;&#34;
-    Using Block as an agent instead. Allows for flexibility and can be easily tied in to further strategies without changing much
-    &#34;&#34;&#34;
-
-    def __init__(
-        self,
-        unique_id,
-        model,
-        pos,
-    ):
-        super().__init__(unique_id, model)
-        self.pos = pos
-        self.breed = &#34;Block&#34;
-        self.jail_sentence = None
-        self.condition = None
-
-    def step(self):
-        &#34;&#34;&#34;
-        This would disable it moving and be fixed
-        &#34;&#34;&#34;
-        pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>mesa.agent.Agent</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pvp.agent.Block.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>This would disable it moving and be fixed</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def step(self):
-    &#34;&#34;&#34;
-    This would disable it moving and be fixed
-    &#34;&#34;&#34;
-    pass</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="pvp.agent.Citizen"><code class="flex name class">
+<dt id="pvp.agents.citizen.Citizen"><code class="flex name class">
 <span>class <span class="ident">Citizen</span></span>
 <span>(</span><span>unique_id, model, pos, hardship, regime_legitimacy, risk_aversion, threshold, vision, aggression)</span>
 </code></dt>
@@ -438,16 +308,17 @@ agent can inspect. Exogenous.</dd>
         super().__init__(unique_id, model)
         self.breed = &#34;citizen&#34;
         self.pos = pos
-        self.hardship = hardship
-        self.regime_legitimacy = regime_legitimacy
+        # self.hardship = hardship
+        # self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
-        self.grievance = self.hardship * (1 - self.regime_legitimacy)
+        # self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
+        self.susceptibility_to_aggression = self.random.random()
 
     def step(self):
         &#34;&#34;&#34;
@@ -463,16 +334,30 @@ agent can inspect. Exogenous.</dd>
 
         self.update_neighbors()
         self.update_estimated_arrest_probability()
+
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (self.grievance - net_risk) &gt; self.threshold
+            and (self.susceptibility_to_aggression - self.arrest_probability)
+            &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
-            self.condition == &#34;Active&#34; and (self.grievance - net_risk) &lt;= self.threshold
+            self.condition == &#34;Active&#34;
+            and (self.susceptibility_to_aggression - self.arrest_probability)
+            &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
+
+        swap = False
+        for agent in self.neighbors:
+            if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
+                swap = True
+                break
+
+        if self.susceptibility_to_aggression &gt; 0.8 and swap:
+            self.condition = &#34;Active&#34;
+
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)
@@ -514,7 +399,7 @@ agent can inspect. Exogenous.</dd>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="pvp.agent.Citizen.step"><code class="name flex">
+<dt id="pvp.agents.citizen.Citizen.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -537,22 +422,36 @@ agent can inspect. Exogenous.</dd>
 
     self.update_neighbors()
     self.update_estimated_arrest_probability()
+
     net_risk = self.risk_aversion * self.arrest_probability
     if (
         self.condition == &#34;Quiescent&#34;
-        and (self.grievance - net_risk) &gt; self.threshold
+        and (self.susceptibility_to_aggression - self.arrest_probability)
+        &gt; self.threshold
     ):
         self.condition = &#34;Active&#34;
     elif (
-        self.condition == &#34;Active&#34; and (self.grievance - net_risk) &lt;= self.threshold
+        self.condition == &#34;Active&#34;
+        and (self.susceptibility_to_aggression - self.arrest_probability)
+        &lt;= self.threshold
     ):
         self.condition = &#34;Quiescent&#34;
+
+    swap = False
+    for agent in self.neighbors:
+        if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
+            swap = True
+            break
+
+    if self.susceptibility_to_aggression &gt; 0.8 and swap:
+        self.condition = &#34;Active&#34;
+
     if self.model.movement and self.empty_neighbors:
         new_pos = self.random.choice(self.empty_neighbors)
         self.model.grid.move_agent(self, new_pos)</code></pre>
 </details>
 </dd>
-<dt id="pvp.agent.Citizen.update_estimated_arrest_probability"><code class="name flex">
+<dt id="pvp.agents.citizen.Citizen.update_estimated_arrest_probability"><code class="name flex">
 <span>def <span class="ident">update_estimated_arrest_probability</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -582,7 +481,7 @@ p(Arrest | I go active).</p></div>
     )</code></pre>
 </details>
 </dd>
-<dt id="pvp.agent.Citizen.update_neighbors"><code class="name flex">
+<dt id="pvp.agents.citizen.Citizen.update_neighbors"><code class="name flex">
 <span>def <span class="ident">update_neighbors</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -606,165 +505,6 @@ p(Arrest | I go active).</p></div>
 </dd>
 </dl>
 </dd>
-<dt id="pvp.agent.Cop"><code class="flex name class">
-<span>class <span class="ident">Cop</span></span>
-<span>(</span><span>unique_id, model, pos, vision)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>A cop for life.
-No defection.
-Summary of rule: Inspect local vision and arrest a random active agent.</p>
-<h2 id="attributes">Attributes</h2>
-<dl>
-<dt><strong><code>unique_id</code></strong></dt>
-<dd>unique int</dd>
-<dt>x, y: Grid coordinates</dt>
-<dt><strong><code>vision</code></strong></dt>
-<dd>number of cells in each direction (N, S, E and W) that cop is
-able to inspect</dd>
-</dl>
-<p>Create a new Cop.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>unique_id</code></strong></dt>
-<dd>unique int</dd>
-<dt>x, y: Grid coordinates</dt>
-<dt><strong><code>vision</code></strong></dt>
-<dd>number of cells in each direction (N, S, E and W) that
-agent can inspect. Exogenous.</dd>
-<dt><strong><code>model</code></strong></dt>
-<dd>model instance</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Cop(Agent):
-    &#34;&#34;&#34;
-    A cop for life.  No defection.
-    Summary of rule: Inspect local vision and arrest a random active agent.
-
-    Attributes:
-        unique_id: unique int
-        x, y: Grid coordinates
-        vision: number of cells in each direction (N, S, E and W) that cop is
-            able to inspect
-    &#34;&#34;&#34;
-
-    def __init__(self, unique_id, model, pos, vision):
-        &#34;&#34;&#34;
-        Create a new Cop.
-        Args:
-            unique_id: unique int
-            x, y: Grid coordinates
-            vision: number of cells in each direction (N, S, E and W) that
-                agent can inspect. Exogenous.
-            model: model instance
-        &#34;&#34;&#34;
-        super().__init__(unique_id, model)
-        self.breed = &#34;cop&#34;
-        self.pos = pos
-        self.vision = vision
-
-    def step(self):
-        &#34;&#34;&#34;
-        Inspect local vision and arrest a random active agent. Move if
-        applicable.
-        &#34;&#34;&#34;
-        self.update_neighbors()
-        active_neighbors = []
-        for agent in self.neighbors:
-            if (
-                agent.breed == &#34;citizen&#34;
-                and agent.condition == &#34;Active&#34;
-                and agent.jail_sentence == 0
-            ):
-                active_neighbors.append(agent)
-        if active_neighbors:
-            arrestee = self.random.choice(active_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)
-            arrestee.jail_sentence = sentence
-
-        if self.model.movement and self.empty_neighbors:
-            new_pos = self.random.choice(self.empty_neighbors)
-            self.model.grid.move_agent(self, new_pos)
-
-    def update_neighbors(self):
-        &#34;&#34;&#34;
-        Look around and see who my neighbors are.
-        &#34;&#34;&#34;
-        self.neighborhood = self.model.grid.get_neighborhood(
-            self.pos, moore=False, radius=1
-        )
-        self.neighbors = self.model.grid.get_cell_list_contents(self.neighborhood)
-        self.empty_neighbors = [
-            c for c in self.neighborhood if self.model.grid.is_cell_empty(c)
-        ]</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>mesa.agent.Agent</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pvp.agent.Cop.step"><code class="name flex">
-<span>def <span class="ident">step</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Inspect local vision and arrest a random active agent. Move if
-applicable.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def step(self):
-    &#34;&#34;&#34;
-    Inspect local vision and arrest a random active agent. Move if
-    applicable.
-    &#34;&#34;&#34;
-    self.update_neighbors()
-    active_neighbors = []
-    for agent in self.neighbors:
-        if (
-            agent.breed == &#34;citizen&#34;
-            and agent.condition == &#34;Active&#34;
-            and agent.jail_sentence == 0
-        ):
-            active_neighbors.append(agent)
-    if active_neighbors:
-        arrestee = self.random.choice(active_neighbors)
-        sentence = self.random.randint(0, self.model.max_jail_term)
-        arrestee.jail_sentence = sentence
-
-    if self.model.movement and self.empty_neighbors:
-        new_pos = self.random.choice(self.empty_neighbors)
-        self.model.grid.move_agent(self, new_pos)</code></pre>
-</details>
-</dd>
-<dt id="pvp.agent.Cop.update_neighbors"><code class="name flex">
-<span>def <span class="ident">update_neighbors</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Look around and see who my neighbors are.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def update_neighbors(self):
-    &#34;&#34;&#34;
-    Look around and see who my neighbors are.
-    &#34;&#34;&#34;
-    self.neighborhood = self.model.grid.get_neighborhood(
-        self.pos, moore=False, radius=1
-    )
-    self.neighbors = self.model.grid.get_cell_list_contents(self.neighborhood)
-    self.empty_neighbors = [
-        c for c in self.neighborhood if self.model.grid.is_cell_empty(c)
-    ]</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 </dl>
 </section>
 </article>
@@ -776,30 +516,17 @@ applicable.</p></div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="pvp" href="index.html">pvp</a></code></li>
+<li><code><a title="pvp.agents" href="index.html">pvp.agents</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="pvp.agent.Block" href="#pvp.agent.Block">Block</a></code></h4>
+<h4><code><a title="pvp.agents.citizen.Citizen" href="#pvp.agents.citizen.Citizen">Citizen</a></code></h4>
 <ul class="">
-<li><code><a title="pvp.agent.Block.step" href="#pvp.agent.Block.step">step</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="pvp.agent.Citizen" href="#pvp.agent.Citizen">Citizen</a></code></h4>
-<ul class="">
-<li><code><a title="pvp.agent.Citizen.step" href="#pvp.agent.Citizen.step">step</a></code></li>
-<li><code><a title="pvp.agent.Citizen.update_estimated_arrest_probability" href="#pvp.agent.Citizen.update_estimated_arrest_probability">update_estimated_arrest_probability</a></code></li>
-<li><code><a title="pvp.agent.Citizen.update_neighbors" href="#pvp.agent.Citizen.update_neighbors">update_neighbors</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="pvp.agent.Cop" href="#pvp.agent.Cop">Cop</a></code></h4>
-<ul class="">
-<li><code><a title="pvp.agent.Cop.step" href="#pvp.agent.Cop.step">step</a></code></li>
-<li><code><a title="pvp.agent.Cop.update_neighbors" href="#pvp.agent.Cop.update_neighbors">update_neighbors</a></code></li>
+<li><code><a title="pvp.agents.citizen.Citizen.step" href="#pvp.agents.citizen.Citizen.step">step</a></code></li>
+<li><code><a title="pvp.agents.citizen.Citizen.update_estimated_arrest_probability" href="#pvp.agents.citizen.Citizen.update_estimated_arrest_probability">update_estimated_arrest_probability</a></code></li>
+<li><code><a title="pvp.agents.citizen.Citizen.update_neighbors" href="#pvp.agents.citizen.Citizen.update_neighbors">update_neighbors</a></code></li>
 </ul>
 </li>
 </ul>

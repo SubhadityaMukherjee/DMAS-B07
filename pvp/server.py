@@ -2,13 +2,16 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
-from .agent import Citizen, Cop
+from .agents.block import Block
+from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .model import EpsteinCivilViolence
 
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"
 AGENT_REBEL_COLOR = "#CC0000"
 JAIL_COLOR = "#757575"
+BARRICADE_COLOR = "#00FF00"
 
 
 def citizen_cop_portrayal(agent):
@@ -31,6 +34,13 @@ def citizen_cop_portrayal(agent):
         portrayal["r"] = 0.8
         portrayal["Layer"] = 0
 
+    elif type(agent) is Block:
+        portrayal["Shape"] = "rect"
+        portrayal["Color"] = BARRICADE_COLOR
+        portrayal["h"] = 0.9
+        portrayal["w"] = 0.9
+        portrayal["Layer"] = 0
+
     elif type(agent) is Cop:
         portrayal["Color"] = COP_COLOR
         portrayal["r"] = 0.5
@@ -39,23 +49,23 @@ def citizen_cop_portrayal(agent):
 
 
 model_params = {
-    "grid_density": UserSettableParameter( #TODO: make grid density
+    "grid_density": UserSettableParameter(  # TODO: make grid density
         param_type="slider",
         name="Grid density",
         value=0.8,
         min_value=0,
         max_value=1,
         step=0.01,
-        description=""
+        description="",
     ),
-        "ratio": UserSettableParameter( #TODO: make citizen to cop ratio
+    "ratio": UserSettableParameter(  # TODO: make citizen to cop ratio
         param_type="slider",
         name="Citizen to cop ratio",
         value=0.8,
         min_value=0,
         max_value=1,
         step=0.001,
-        description=""
+        description="",
     ),
     "height": 40,
     "width": 40,
@@ -63,7 +73,9 @@ model_params = {
     "cop_vision": 7,
     "legitimacy": 0.8,
     "max_jail_term": 1000,
-    "jail_capacity": 50
+    "jail_capacity": 500,
+    "strategy": "random",
+    "barricade": 50,
 }
 
 
@@ -78,13 +90,15 @@ class AgentLeftElement(TextElement):
     def render(self, model):
         cop = 0
         citizen = 0
+        block = 0
         for agent in model.schedule.agents:
             if agent.breed == "citizen":
                 citizen += 1
             if agent.breed == "cop":
                 cop += 1
-
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)} \n Active threshold : {str(model.active_threshold)}"""
+            if agent.breed == "Block":
+                block += 1
+        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}"""
         return stats
 
 

@@ -1,10 +1,14 @@
 from random import choices
+
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
 
-from .agent import Citizen, Cop
+from .agents.block import Block
+from .agents.citizen import Citizen
+from .agents.cop import Cop
+from .strategies import *
 
 
 class EpsteinCivilViolence(Model):
@@ -40,14 +44,16 @@ class EpsteinCivilViolence(Model):
         width=40,
         grid_density=0.7,
         ratio=0.074,
+        barricade=4,
         citizen_vision=7,
         cop_vision=7,
         legitimacy=0.8,
         max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.1,
+        strategy="random",
         arrest_prob_constant=2.3,
-        # aggression=.7, #TODO
+        aggression=0.7,  # TODO
         movement=True,
         max_iters=1000,
     ):
@@ -67,6 +73,7 @@ class EpsteinCivilViolence(Model):
         self.movement = movement
         self.jailed_agents = []
         self.jailed = 0
+        self.strategy = strategy
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -74,9 +81,11 @@ class EpsteinCivilViolence(Model):
         self.grid = Grid(height, width, torus=True)
 
         self.numTotalSpaces = self.height * self.width
-        self.numFreeSpaces = (self.height * self.width)*self.grid_density
+        self.numFreeSpaces = (self.height * self.width) * self.grid_density - barricade
         self.numCitizens = self.numFreeSpaces * self.ratio
         self.numCops = self.numFreeSpaces - self.numCitizens
+        self.barricade = barricade
+        self.citizen, self.cop, self.block = None, None, None
 
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
@@ -100,33 +109,11 @@ class EpsteinCivilViolence(Model):
         self.datacollector.collect(self)
 
     def spawner(self):
-        unique_id = 0
-        citizenProb = self.numCitizens/self.numTotalSpaces
-        freeProb = (self.numTotalSpaces-self.numFreeSpaces)/self.numTotalSpaces
-        copProb = self.numCops/self.numTotalSpaces
+        self.unique_id = 0
         print(self.numCitizens, self.numCops)
-        for(contents, x, y) in self.grid.coord_iter():
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            if rand[0] == 1:
-                citizen = Citizen(
-                    unique_id,
-                    self,
-                    (x, y),
-                    hardship=self.random.random(),
-                    regime_legitimacy=self.legitimacy,
-                    risk_aversion=self.random.random(),
-                    threshold=self.active_threshold,
-                    vision=self.citizen_vision,
-                    aggression=self.aggression,
-                )
-                unique_id += 1
-                self.grid[y][x] = citizen
-                self.schedule.add(citizen)
-            elif rand[0] == 2:
-                cop = Cop(unique_id, self, (x, y), vision=self.cop_vision)
-                unique_id += 1
-                self.grid[y][x] = cop
-                self.schedule.add(cop)
+        # out = random_strategy(self)
+        #side_strategy(self, "left", "cop")
+        middle_block(self)
 
     def step(self):
         """
@@ -134,7 +121,7 @@ class EpsteinCivilViolence(Model):
         """
         self.schedule.step()
         for i in self.jailed_agents:
-            if(len(self.jailed_agents) < self.jail_capacity):
+            if len(self.jailed_agents) < self.jail_capacity:
                 try:
                     self.grid._remove_agent(i.pos, i)
                     self.schedule.remove(i)
