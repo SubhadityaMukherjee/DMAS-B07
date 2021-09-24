@@ -95,12 +95,12 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == "Quiescent"
-            and (net_risk - self.arrest_probability) > self.threshold
+            and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
         elif (
             self.condition == "Active"
-            and (net_risk - self.arrest_probability) <= self.threshold
+            and abs(net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
 

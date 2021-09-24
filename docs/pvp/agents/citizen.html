@@ -123,12 +123,12 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (net_risk - self.arrest_probability) &gt; self.threshold
+            and abs(net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
             self.condition == &#34;Active&#34;
-            and (net_risk - self.arrest_probability) &lt;= self.threshold
+            and abs(net_risk - self.arrest_probability) &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
 
@@ -370,12 +370,12 @@ agent can inspect. Exogenous.</dd>
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (net_risk - self.arrest_probability) &gt; self.threshold
+            and abs(net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
             self.condition == &#34;Active&#34;
-            and (net_risk - self.arrest_probability) &lt;= self.threshold
+            and abs(net_risk - self.arrest_probability) &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
 
@@ -526,12 +526,12 @@ agent can inspect. Exogenous.</dd>
     net_risk = self.risk_aversion * self.arrest_probability
     if (
         self.condition == &#34;Quiescent&#34;
-        and (net_risk - self.arrest_probability) &gt; self.threshold
+        and abs(net_risk - self.arrest_probability) &gt; self.threshold
     ):
         self.condition = &#34;Active&#34;
     elif (
         self.condition == &#34;Active&#34;
-        and (net_risk - self.arrest_probability) &lt;= self.threshold
+        and abs(net_risk - self.arrest_probability) &lt;= self.threshold
     ):
         self.condition = &#34;Quiescent&#34;
 
