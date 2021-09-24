@@ -30,7 +30,7 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self): # walk around / block in the middle
+def middle_block(self):  # walk around / block in the middle
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -59,6 +59,7 @@ def middle_block(self): # walk around / block in the middle
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
+            direction_bias=self.direction_bias,
         )
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
@@ -68,7 +69,7 @@ def middle_block(self): # walk around / block in the middle
             grid_adder(self, agent_dict[rand[0]])
 
 
-def random_strategy(self): # random distribution
+def random_strategy(self):  # random distribution
     """
     Randomly places objects (original)
     """
@@ -88,6 +89,7 @@ def random_strategy(self): # random distribution
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
@@ -104,7 +106,7 @@ def random_strategy(self): # random distribution
 
 
 # %%
-def side_strategy(self, side="left", agent="cop"): # wall of cops
+def side_strategy(self, side="left", agent="cop"):  # wall of cops
     """
     Left/right side : all of one type (eg all cops on the left)
     Rest filled randomly
@@ -136,6 +138,7 @@ def side_strategy(self, side="left", agent="cop"): # wall of cops
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
@@ -154,16 +157,3 @@ def side_strategy(self, side="left", agent="cop"): # wall of cops
         else:
             rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])
-
-
-# %%
-# gr = np.zeros((10,10))
-# b = 5
-# c = 10
-# p = 80
-
-
-# mask = np.random.choice([0,3],size=gr.shape).astype(bool)
-# gr[mask] = 1
-
-# print(gr)

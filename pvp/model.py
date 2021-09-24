@@ -55,6 +55,7 @@ class ProtestersVsPolice(Model):
         strategy="random",
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
+        direction_bias="none",
         movement=True,
         max_iters=1000,
     ):
@@ -78,6 +79,7 @@ class ProtestersVsPolice(Model):
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
+        self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
         self.grid = Grid(height, width, torus=True)
         self.environment = environment
@@ -113,7 +115,7 @@ class ProtestersVsPolice(Model):
     def spawner(self):
         self.unique_id = 0
         if self.environment == "Random distribution":
-            out = random_strategy(self)
+            random_strategy(self)
         elif self.environment == "Block in the middle":
             middle_block(self)
         elif self.environment == "Wall of cops":

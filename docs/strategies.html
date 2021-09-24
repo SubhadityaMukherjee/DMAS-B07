@@ -58,7 +58,7 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):
+def middle_block(self):  # walk around / block in the middle
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -87,6 +87,7 @@ def middle_block(self):
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
+            direction_bias=self.direction_bias,
         )
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
@@ -96,7 +97,7 @@ def middle_block(self):
             grid_adder(self, agent_dict[rand[0]])
 
 
-def random_strategy(self):
+def random_strategy(self):  # random distribution
     &#34;&#34;&#34;
     Randomly places objects (original)
     &#34;&#34;&#34;
@@ -116,6 +117,7 @@ def random_strategy(self):
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
@@ -132,7 +134,7 @@ def random_strategy(self):
 
 
 # %%
-def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
+def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of cops
     &#34;&#34;&#34;
     Left/right side : all of one type (eg all cops on the left)
     Rest filled randomly
@@ -164,6 +166,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
@@ -181,20 +184,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
 
         else:
             rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
-            grid_adder(self, agent_dict[rand[0]])
-
-
-# %%
-# gr = np.zeros((10,10))
-# b = 5
-# c = 10
-# p = 80
-
-
-# mask = np.random.choice([0,3],size=gr.shape).astype(bool)
-# gr[mask] = 1
-
-# print(gr)</code></pre>
+            grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
 </section>
 <section>
@@ -232,7 +222,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def middle_block(self):
+<pre><code class="python">def middle_block(self):  # walk around / block in the middle
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -261,6 +251,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
+            direction_bias=self.direction_bias,
         )
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
@@ -279,7 +270,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def random_strategy(self):
+<pre><code class="python">def random_strategy(self):  # random distribution
     &#34;&#34;&#34;
     Randomly places objects (original)
     &#34;&#34;&#34;
@@ -299,6 +290,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
@@ -327,7 +319,7 @@ Reshape back</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):
+<pre><code class="python">def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of cops
     &#34;&#34;&#34;
     Left/right side : all of one type (eg all cops on the left)
     Rest filled randomly
@@ -359,6 +351,7 @@ Reshape back</p></div>
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,

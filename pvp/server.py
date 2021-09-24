@@ -74,6 +74,13 @@ model_params = {
         choices=["Random distribution", "Block in the middle", "Wall of cops"],
         description="",
     ),
+    "direction_bias": UserSettableParameter(
+        param_type="choice",
+        name="Citizen Direction",
+        value="none",
+        choices=["none", "left", "right", "up", "down"],
+        description="",
+    ),
     "height": 40,
     "width": 40,
     "citizen_vision": 7,

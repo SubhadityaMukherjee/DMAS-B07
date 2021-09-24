@@ -1,4 +1,6 @@
 import math
+import random
+from operator import pos
 
 from mesa import Agent
 
@@ -40,6 +42,7 @@ class Citizen(Agent):
         threshold,
         vision,
         aggression,
+        direction_bias,
     ):
         """
         Create a new Citizen.
@@ -65,6 +68,7 @@ class Citizen(Agent):
         self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
+        self.direction_bias = direction_bias
         self.condition = "Quiescent"
         self.vision = vision
         self.jail_sentence = 0
@@ -91,14 +95,12 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == "Quiescent"
-            and (net_risk - self.arrest_probability)
-            > self.threshold
+            and (net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
         elif (
             self.condition == "Active"
-            and (net_risk - self.arrest_probability)
-            <= self.threshold
+            and (net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
 
@@ -112,8 +114,36 @@ class Citizen(Agent):
             self.condition = "Active"'''
 
         if self.model.movement and self.empty_neighbors:
-            new_pos = self.random.choice(self.empty_neighbors)
-            self.model.grid.move_agent(self, new_pos)
+            if self.direction_bias != "none":
+                if len(self.empty_neighbors) > 0:
+                    possibilites = self.choose_direction(self.empty_neighbors)
+                    if possibilites != None:
+                        self.model.grid.move_agent(self, possibilites)
+            else:
+                new_pos = self.random.choice(self.empty_neighbors)
+                self.model.grid.move_agent(self, new_pos)
+
+    def calc_direction(self, pos2):
+        cur_x, cur_y = self.pos[0], self.pos[1]
+        nex_x, nex_y = pos2[0], pos2[1]
+        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
+        if sub_y > 0 and sub_x == 0:
+            return "up"
+        elif sub_y < 0 and sub_x == 0:
+            return "down"
+        elif sub_y == 0 and sub_x > 0:
+            return "right"
+        elif sub_y == 0 and sub_x < 0:
+            return "left"
+        else:
+            return None
+
+    def choose_direction(self, possible):
+        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
+        if len(pos) != 0:
+            return random.choice(pos)
+        else:
+            return None
 
     def update_neighbors(self):
         """

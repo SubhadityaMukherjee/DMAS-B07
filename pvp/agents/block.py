@@ -16,7 +16,7 @@ class Block(Agent):
         self.pos = pos
         self.breed = "Block"
         self.jail_sentence = None
-        self.condition = None
+        self.condition = "Quiescent"
 
     def step(self):
         """

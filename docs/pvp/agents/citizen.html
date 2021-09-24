@@ -27,6 +27,8 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import math
+import random
+from operator import pos
 
 from mesa import Agent
 
@@ -68,6 +70,7 @@ class Citizen(Agent):
         threshold,
         vision,
         aggression,
+        direction_bias,
     ):
         &#34;&#34;&#34;
         Create a new Citizen.
@@ -89,14 +92,15 @@ class Citizen(Agent):
         super().__init__(unique_id, model)
         self.breed = &#34;citizen&#34;
         self.pos = pos
-        # self.hardship = hardship
-        # self.regime_legitimacy = regime_legitimacy
+        self.hardship = hardship
+        self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
+        self.direction_bias = direction_bias
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
-        # self.grievance = self.hardship * (1 - self.regime_legitimacy)
+        self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
         self.susceptibility_to_aggression = self.random.random()
@@ -119,29 +123,55 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (self.susceptibility_to_aggression - self.arrest_probability)
-            &gt; self.threshold
+            and (net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
             self.condition == &#34;Active&#34;
-            and (self.susceptibility_to_aggression - self.arrest_probability)
-            &lt;= self.threshold
+            and (net_risk - self.arrest_probability) &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
 
-        swap = False
+        &#39;&#39;&#39;swap = False
         for agent in self.neighbors:
             if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
                 swap = True
                 break
 
         if self.susceptibility_to_aggression &gt; 0.8 and swap:
-            self.condition = &#34;Active&#34;
+            self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
         if self.model.movement and self.empty_neighbors:
-            new_pos = self.random.choice(self.empty_neighbors)
-            self.model.grid.move_agent(self, new_pos)
+            if self.direction_bias != &#34;none&#34;:
+                if len(self.empty_neighbors) &gt; 0:
+                    possibilites = self.choose_direction(self.empty_neighbors)
+                    if possibilites != None:
+                        self.model.grid.move_agent(self, possibilites)
+            else:
+                new_pos = self.random.choice(self.empty_neighbors)
+                self.model.grid.move_agent(self, new_pos)
+
+    def calc_direction(self, pos2):
+        cur_x, cur_y = self.pos[0], self.pos[1]
+        nex_x, nex_y = pos2[0], pos2[1]
+        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
+        if sub_y &gt; 0 and sub_x == 0:
+            return &#34;up&#34;
+        elif sub_y &lt; 0 and sub_x == 0:
+            return &#34;down&#34;
+        elif sub_y == 0 and sub_x &gt; 0:
+            return &#34;right&#34;
+        elif sub_y == 0 and sub_x &lt; 0:
+            return &#34;left&#34;
+        else:
+            return None
+
+    def choose_direction(self, possible):
+        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
+        if len(pos) != 0:
+            return random.choice(pos)
+        else:
+            return None
 
     def update_neighbors(self):
         &#34;&#34;&#34;
@@ -186,7 +216,7 @@ class Citizen(Agent):
 <dl>
 <dt id="pvp.agents.citizen.Citizen"><code class="flex name class">
 <span>class <span class="ident">Citizen</span></span>
-<span>(</span><span>unique_id, model, pos, hardship, regime_legitimacy, risk_aversion, threshold, vision, aggression)</span>
+<span>(</span><span>unique_id, model, pos, hardship, regime_legitimacy, risk_aversion, threshold, vision, aggression, direction_bias)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A member of the general population, may or may not be in active rebellion.
@@ -287,6 +317,7 @@ agent can inspect. Exogenous.</dd>
         threshold,
         vision,
         aggression,
+        direction_bias,
     ):
         &#34;&#34;&#34;
         Create a new Citizen.
@@ -308,14 +339,15 @@ agent can inspect. Exogenous.</dd>
         super().__init__(unique_id, model)
         self.breed = &#34;citizen&#34;
         self.pos = pos
-        # self.hardship = hardship
-        # self.regime_legitimacy = regime_legitimacy
+        self.hardship = hardship
+        self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
+        self.direction_bias = direction_bias
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
-        # self.grievance = self.hardship * (1 - self.regime_legitimacy)
+        self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
         self.susceptibility_to_aggression = self.random.random()
@@ -338,29 +370,55 @@ agent can inspect. Exogenous.</dd>
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             self.condition == &#34;Quiescent&#34;
-            and (self.susceptibility_to_aggression - self.arrest_probability)
-            &gt; self.threshold
+            and (net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
         elif (
             self.condition == &#34;Active&#34;
-            and (self.susceptibility_to_aggression - self.arrest_probability)
-            &lt;= self.threshold
+            and (net_risk - self.arrest_probability) &lt;= self.threshold
         ):
             self.condition = &#34;Quiescent&#34;
 
-        swap = False
+        &#39;&#39;&#39;swap = False
         for agent in self.neighbors:
             if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
                 swap = True
                 break
 
         if self.susceptibility_to_aggression &gt; 0.8 and swap:
-            self.condition = &#34;Active&#34;
+            self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
         if self.model.movement and self.empty_neighbors:
-            new_pos = self.random.choice(self.empty_neighbors)
-            self.model.grid.move_agent(self, new_pos)
+            if self.direction_bias != &#34;none&#34;:
+                if len(self.empty_neighbors) &gt; 0:
+                    possibilites = self.choose_direction(self.empty_neighbors)
+                    if possibilites != None:
+                        self.model.grid.move_agent(self, possibilites)
+            else:
+                new_pos = self.random.choice(self.empty_neighbors)
+                self.model.grid.move_agent(self, new_pos)
+
+    def calc_direction(self, pos2):
+        cur_x, cur_y = self.pos[0], self.pos[1]
+        nex_x, nex_y = pos2[0], pos2[1]
+        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
+        if sub_y &gt; 0 and sub_x == 0:
+            return &#34;up&#34;
+        elif sub_y &lt; 0 and sub_x == 0:
+            return &#34;down&#34;
+        elif sub_y == 0 and sub_x &gt; 0:
+            return &#34;right&#34;
+        elif sub_y == 0 and sub_x &lt; 0:
+            return &#34;left&#34;
+        else:
+            return None
+
+    def choose_direction(self, possible):
+        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
+        if len(pos) != 0:
+            return random.choice(pos)
+        else:
+            return None
 
     def update_neighbors(self):
         &#34;&#34;&#34;
@@ -399,6 +457,48 @@ agent can inspect. Exogenous.</dd>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="pvp.agents.citizen.Citizen.calc_direction"><code class="name flex">
+<span>def <span class="ident">calc_direction</span></span>(<span>self, pos2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calc_direction(self, pos2):
+    cur_x, cur_y = self.pos[0], self.pos[1]
+    nex_x, nex_y = pos2[0], pos2[1]
+    sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
+    if sub_y &gt; 0 and sub_x == 0:
+        return &#34;up&#34;
+    elif sub_y &lt; 0 and sub_x == 0:
+        return &#34;down&#34;
+    elif sub_y == 0 and sub_x &gt; 0:
+        return &#34;right&#34;
+    elif sub_y == 0 and sub_x &lt; 0:
+        return &#34;left&#34;
+    else:
+        return None</code></pre>
+</details>
+</dd>
+<dt id="pvp.agents.citizen.Citizen.choose_direction"><code class="name flex">
+<span>def <span class="ident">choose_direction</span></span>(<span>self, possible)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def choose_direction(self, possible):
+    pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
+    if len(pos) != 0:
+        return random.choice(pos)
+    else:
+        return None</code></pre>
+</details>
+</dd>
 <dt id="pvp.agents.citizen.Citizen.step"><code class="name flex">
 <span>def <span class="ident">step</span></span>(<span>self)</span>
 </code></dt>
@@ -426,29 +526,33 @@ agent can inspect. Exogenous.</dd>
     net_risk = self.risk_aversion * self.arrest_probability
     if (
         self.condition == &#34;Quiescent&#34;
-        and (self.susceptibility_to_aggression - self.arrest_probability)
-        &gt; self.threshold
+        and (net_risk - self.arrest_probability) &gt; self.threshold
     ):
         self.condition = &#34;Active&#34;
     elif (
         self.condition == &#34;Active&#34;
-        and (self.susceptibility_to_aggression - self.arrest_probability)
-        &lt;= self.threshold
+        and (net_risk - self.arrest_probability) &lt;= self.threshold
     ):
         self.condition = &#34;Quiescent&#34;
 
-    swap = False
+    &#39;&#39;&#39;swap = False
     for agent in self.neighbors:
         if agent.breed == &#34;citizen&#34; and agent.jail_sentence &gt; 0:
             swap = True
             break
 
     if self.susceptibility_to_aggression &gt; 0.8 and swap:
-        self.condition = &#34;Active&#34;
+        self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
     if self.model.movement and self.empty_neighbors:
-        new_pos = self.random.choice(self.empty_neighbors)
-        self.model.grid.move_agent(self, new_pos)</code></pre>
+        if self.direction_bias != &#34;none&#34;:
+            if len(self.empty_neighbors) &gt; 0:
+                possibilites = self.choose_direction(self.empty_neighbors)
+                if possibilites != None:
+                    self.model.grid.move_agent(self, possibilites)
+        else:
+            new_pos = self.random.choice(self.empty_neighbors)
+            self.model.grid.move_agent(self, new_pos)</code></pre>
 </details>
 </dd>
 <dt id="pvp.agents.citizen.Citizen.update_estimated_arrest_probability"><code class="name flex">
@@ -524,6 +628,8 @@ p(Arrest | I go active).</p></div>
 <li>
 <h4><code><a title="pvp.agents.citizen.Citizen" href="#pvp.agents.citizen.Citizen">Citizen</a></code></h4>
 <ul class="">
+<li><code><a title="pvp.agents.citizen.Citizen.calc_direction" href="#pvp.agents.citizen.Citizen.calc_direction">calc_direction</a></code></li>
+<li><code><a title="pvp.agents.citizen.Citizen.choose_direction" href="#pvp.agents.citizen.Citizen.choose_direction">choose_direction</a></code></li>
 <li><code><a title="pvp.agents.citizen.Citizen.step" href="#pvp.agents.citizen.Citizen.step">step</a></code></li>
 <li><code><a title="pvp.agents.citizen.Citizen.update_estimated_arrest_probability" href="#pvp.agents.citizen.Citizen.update_estimated_arrest_probability">update_estimated_arrest_probability</a></code></li>
 <li><code><a title="pvp.agents.citizen.Citizen.update_neighbors" href="#pvp.agents.citizen.Citizen.update_neighbors">update_neighbors</a></code></li>
