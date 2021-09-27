@@ -75,6 +75,7 @@ class Citizen(Agent):
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
+        # TODO: include susceptibility to aggression into when they turn active
         self.susceptibility_to_aggression = self.random.random()
 
     def step(self):

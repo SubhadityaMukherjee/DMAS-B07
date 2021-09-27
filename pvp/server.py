@@ -49,7 +49,7 @@ def citizen_cop_portrayal(agent):
 
 
 model_params = {
-    "grid_density": UserSettableParameter(  # TODO: make grid density
+    "grid_density": UserSettableParameter(
         param_type="slider",
         name="Grid density",
         value=0.8,
@@ -58,7 +58,7 @@ model_params = {
         step=0.01,
         description="",
     ),
-    "ratio": UserSettableParameter(  # TODO: make citizen to cop ratio
+    "ratio": UserSettableParameter(
         param_type="slider",
         name="Citizen to cop ratio",
         value=0.8,
@@ -71,7 +71,7 @@ model_params = {
         param_type="choice",
         name="Environment",
         value="Random distribution",
-        choices=["Random distribution", "Block in the middle", "Wall of cops"],
+        choices=["Random distribution", "Block in the middle", "Wall of cops", "Street"],
         description="",
     ),
     "direction_bias": UserSettableParameter(
