@@ -197,6 +197,6 @@ def streets(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        if x_start >= x >= x_end and x != x_mid and x != (x_mid + 1):
+        if x_start > x > x_end and (x != x_mid and x != (x_mid + 1) or (y < y_start or y > y_end)):
             rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])

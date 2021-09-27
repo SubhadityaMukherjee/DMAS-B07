@@ -39,25 +39,25 @@ class ProtestersVsPolice(Model):
     """
 
     def __init__(
-        self,
-        height=40,
-        width=40,
-        grid_density=0.7,
-        ratio=0.074,
-        environment="Random distribution",
-        barricade=4,
-        citizen_vision=7,
-        cop_vision=7,
-        legitimacy=0.8,
-        max_jail_term=1000,
-        jail_capacity=50,
-        active_threshold=0.1,
-        strategy="random",
-        arrest_prob_constant=2.3,
-        aggression=0.7,  # TODO
-        direction_bias="none",
-        movement=True,
-        max_iters=1000,
+            self,
+            height=40,
+            width=40,
+            grid_density=0.7,
+            ratio=0.074,
+            environment="Random distribution",
+            barricade=4,
+            citizen_vision=7,
+            cop_vision=7,
+            legitimacy=0.8,
+            max_jail_term=1000,
+            jail_capacity=50,
+            active_threshold=0.1,
+            strategy="random",
+            arrest_prob_constant=2.3,
+            aggression=0.7,  # TODO
+            direction_bias="none",
+            movement=True,
+            max_iters=1000,
     ):
         super().__init__()
 
@@ -82,7 +82,7 @@ class ProtestersVsPolice(Model):
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
-        self.grid = Grid(height, width, torus=True)
+        self.grid = Grid(height, width, torus=False)  # TODO: do we want it to wrap?
         self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
