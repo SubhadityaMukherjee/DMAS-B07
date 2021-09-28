@@ -74,6 +74,7 @@ class ProtestersVsPolice(Model):
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
         self.jailed_agents = []
+        self.arrested_agents = []
         self.jailed = 0
         self.test = 0
         self.strategy = strategy
@@ -129,12 +130,15 @@ class ProtestersVsPolice(Model):
         Advance the model by one step and collect data.
         """
         self.schedule.step()
-        for i in self.jailed_agents:
-            if len(self.jailed_agents) < self.jail_capacity:
+        print(len(self.arrested_agents))
+        for i in self.arrested_agents:
+            if len(self.jailed_agents) < self.jail_capacity:  # TODO: change
+                self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
                     self.schedule.remove(i)
                     self.test += 1
+                    self.arrested_agents.remove(i)
                 except KeyError:
                     pass
         self.datacollector.collect(self)
@@ -144,6 +148,9 @@ class ProtestersVsPolice(Model):
             self.running = False
         print(self.jailed)
         print(self.test)
+        print(len(self.arrested_agents))
+        print(len(self.jailed_agents))
+
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
