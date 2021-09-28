@@ -52,6 +52,7 @@ class Cop(Agent):
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
             self.model.jailed += 1
+            self.model.arrested_agents.append(arrestee)
 
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
