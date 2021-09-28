@@ -71,7 +71,13 @@ model_params = {
         param_type="choice",
         name="Environment",
         value="Random distribution",
-        choices=["Random distribution", "Block in the middle", "Wall of cops", "Street"],
+        choices=[
+            "Random distribution",
+            "Block in the middle",
+            "Wall of cops",
+            "Street",
+            "Circle",
+        ],
         description="",
     ),
     "direction_bias": UserSettableParameter(
@@ -90,6 +96,7 @@ model_params = {
     "jail_capacity": 50,
     "strategy": "random",
     "barricade": 50,
+    "funmode": False,  # pew pew pew xD
 }
 
 

@@ -103,17 +103,18 @@ class Citizen(Agent):
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
+        # TODO: include susceptibility to aggression into when they turn active
         self.susceptibility_to_aggression = self.random.random()
 
     def step(self):
         &#34;&#34;&#34;
         Decide whether to activate, then move if applicable.
         &#34;&#34;&#34;
-        if self.jail_sentence:
+        &#34;&#34;&#34;if self.jail_sentence:
             # self.jail_sentence -= 1
-            self.model.jailed_agents.append(self)
+            self.model.arrested_agents.append(self)
             return  # no other changes or movements if agent is in jail.
-
+        &#34;&#34;&#34;
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
@@ -350,17 +351,18 @@ agent can inspect. Exogenous.</dd>
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
+        # TODO: include susceptibility to aggression into when they turn active
         self.susceptibility_to_aggression = self.random.random()
 
     def step(self):
         &#34;&#34;&#34;
         Decide whether to activate, then move if applicable.
         &#34;&#34;&#34;
-        if self.jail_sentence:
+        &#34;&#34;&#34;if self.jail_sentence:
             # self.jail_sentence -= 1
-            self.model.jailed_agents.append(self)
+            self.model.arrested_agents.append(self)
             return  # no other changes or movements if agent is in jail.
-
+        &#34;&#34;&#34;
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
@@ -512,11 +514,11 @@ agent can inspect. Exogenous.</dd>
     &#34;&#34;&#34;
     Decide whether to activate, then move if applicable.
     &#34;&#34;&#34;
-    if self.jail_sentence:
+    &#34;&#34;&#34;if self.jail_sentence:
         # self.jail_sentence -= 1
-        self.model.jailed_agents.append(self)
+        self.model.arrested_agents.append(self)
         return  # no other changes or movements if agent is in jail.
-
+    &#34;&#34;&#34;
     if self.aggression &gt; 0.3:  # TODO
         self.risk_aversion = self.risk_aversion / 2
 

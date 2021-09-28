@@ -29,7 +29,7 @@ class Cop(Agent):
         self.breed = "cop"
         self.pos = pos
         self.vision = vision
-        self.arresting = False # TODO: make cops disappear for awhile when arresting
+        self.arresting = False  # TODO: make cops disappear for awhile when arresting
 
     def step(self):
         """
@@ -47,7 +47,9 @@ class Cop(Agent):
                 active_neighbors.append(agent)
         # TODO: have multiple cops per person to arrest? try grouping cops together
         # TODO: make it slightly less likely to arrest ? seems too simple rn
-        if active_neighbors and self.model.jail_capacity > len(self.model.jailed_agents):
+        if active_neighbors and self.model.jail_capacity > len(
+            self.model.jailed_agents
+        ):
             arrestee = self.random.choice(active_neighbors)
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
