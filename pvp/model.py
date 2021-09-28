@@ -39,24 +39,25 @@ class ProtestersVsPolice(Model):
     """
 
     def __init__(
-        self,
-        height=40,
-        width=40,
-        grid_density=0.7,
-        ratio=0.074,
-        environment="Random distribution",
-        barricade=4,
-        citizen_vision=7,
-        cop_vision=7,
-        legitimacy=0.8,
-        max_jail_term=1000,
-        jail_capacity=50,
-        active_threshold=0.1,
-        strategy="random",
-        arrest_prob_constant=2.3,
-        aggression=0.7,  # TODO
-        movement=True,
-        max_iters=1000,
+            self,
+            height=40,
+            width=40,
+            grid_density=0.7,
+            ratio=0.074,
+            environment="Random distribution",
+            barricade=4,
+            citizen_vision=7,
+            cop_vision=7,
+            legitimacy=0.8,
+            max_jail_term=1000,
+            jail_capacity=50,
+            active_threshold=0.1,
+            strategy="random",
+            arrest_prob_constant=2.3,
+            aggression=0.7,  # TODO
+            direction_bias="none",
+            movement=True,
+            max_iters=1000,
     ):
         super().__init__()
 
@@ -74,12 +75,14 @@ class ProtestersVsPolice(Model):
         self.movement = movement
         self.jailed_agents = []
         self.jailed = 0
+        self.test = 0
         self.strategy = strategy
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
+        self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
-        self.grid = Grid(height, width, torus=True)
+        self.grid = Grid(height, width, torus=False)  # TODO: do we want it to wrap?
         self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
@@ -113,11 +116,13 @@ class ProtestersVsPolice(Model):
     def spawner(self):
         self.unique_id = 0
         if self.environment == "Random distribution":
-            out = random_strategy(self)
+            random_strategy(self)
         elif self.environment == "Block in the middle":
             middle_block(self)
         elif self.environment == "Wall of cops":
             side_strategy(self, "left", "cop")
+        elif self.environment == "Street":
+            streets(self)
 
     def step(self):
         """
@@ -129,6 +134,7 @@ class ProtestersVsPolice(Model):
                 try:
                     self.grid._remove_agent(i.pos, i)
                     self.schedule.remove(i)
+                    self.test += 1
                 except KeyError:
                     pass
         self.datacollector.collect(self)
@@ -136,6 +142,8 @@ class ProtestersVsPolice(Model):
         self.iteration += 1
         if self.iteration > self.max_iters:
             self.running = False
+        print(self.jailed)
+        print(self.test)
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
