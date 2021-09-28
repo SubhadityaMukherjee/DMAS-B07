@@ -93,7 +93,7 @@ model_params = {
     "cop_vision": 7,
     "legitimacy": 0.8,
     "max_jail_term": 1000,
-    "jail_capacity": 50,
+    "jail_capacity": 400,
     "strategy": "random",
     "barricade": 50,
     "funmode": False,  # pew pew pew xD

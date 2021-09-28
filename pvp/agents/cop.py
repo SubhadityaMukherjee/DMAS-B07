@@ -30,6 +30,8 @@ class Cop(Agent):
         self.pos = pos
         self.vision = vision
         self.arresting = False  # TODO: make cops disappear for awhile when arresting
+        self.arrested_step = 0
+        self.wait_for = 40  # no of steps to wait before arresting someone else
 
     def step(self):
         """
@@ -38,6 +40,7 @@ class Cop(Agent):
         """
         self.update_neighbors()
         active_neighbors = []
+        cop_neighbors = []
         for agent in self.neighbors:
             if (
                 agent.breed == "citizen"
@@ -45,16 +48,29 @@ class Cop(Agent):
                 and agent.jail_sentence == 0
             ):
                 active_neighbors.append(agent)
+            if agent.breed == "cop":
+                cop_neighbors.append(agent)
         # TODO: have multiple cops per person to arrest? try grouping cops together
         # TODO: make it slightly less likely to arrest ? seems too simple rn
-        if active_neighbors and self.model.jail_capacity > len(
-            self.model.jailed_agents
+
+        if self.arresting == False and (
+            self.model.iteration - self.arrested_step <= self.wait_for
         ):
+            self.arresting = True
+
+        if (
+            active_neighbors
+            and self.model.jail_capacity > len(self.model.jailed_agents)
+            and self.arresting == True
+            and len(cop_neighbors) > 1
+        ):  # TODO : check this once
             arrestee = self.random.choice(active_neighbors)
             sentence = self.random.randint(0, self.model.max_jail_term)
             arrestee.jail_sentence = sentence
             self.model.jailed += 1
             self.model.arrested_agents.append(arrestee)
+            self.arresting = False
+            self.arrested_step = self.model.iteration
 
         if self.model.movement and self.empty_neighbors:
             new_pos = self.random.choice(self.empty_neighbors)
