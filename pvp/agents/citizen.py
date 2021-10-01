@@ -32,17 +32,17 @@ class Citizen(Agent):
     """
 
     def __init__(
-        self,
-        unique_id,
-        model,
-        pos,
-        hardship,
-        regime_legitimacy,
-        risk_aversion,
-        threshold,
-        vision,
-        aggression,
-        direction_bias,
+            self,
+            unique_id,
+            model,
+            pos,
+            hardship,
+            regime_legitimacy,
+            risk_aversion,
+            threshold,
+            vision,
+            aggression,
+            direction_bias,
     ):
         """
         Create a new Citizen.
@@ -82,11 +82,12 @@ class Citizen(Agent):
         """
         Decide whether to activate, then move if applicable.
         """
-        '''if self.jail_sentence:
-            # self.jail_sentence -= 1
-            self.model.arrested_agents.append(self)
+        if self.jail_sentence:
+            self.jail_sentence -= 1
             return  # no other changes or movements if agent is in jail.
-        '''
+
+        # TODO: random variable to create deviant behaviour
+
         if self.aggression > 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
@@ -95,13 +96,13 @@ class Citizen(Agent):
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            self.condition == "Quiescent"
-            and abs(net_risk - self.arrest_probability) > self.threshold
+                self.condition == "Quiescent"
+                and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
         elif (
-            self.condition == "Active"
-            and abs(net_risk - self.arrest_probability) <= self.threshold
+                self.condition == "Active"
+                and abs(net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
 
@@ -115,36 +116,64 @@ class Citizen(Agent):
             self.condition = "Active"'''
 
         if self.model.movement and self.empty_neighbors:
-            if self.direction_bias != "none":
+            if self.direction_bias != "Random":
+
                 if len(self.empty_neighbors) > 0:
-                    possibilites = self.choose_direction(self.empty_neighbors)
-                    if possibilites != None:
-                        self.model.grid.move_agent(self, possibilites)
+                    move = self.choose_direction(self.empty_neighbors)
+                    if move != None:
+                        print(self.pos, move, self.unique_id)
+                        self.model.grid.move_agent(self, move)
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
                 self.model.grid.move_agent(self, new_pos)
 
-    def calc_direction(self, pos2):
-        cur_x, cur_y = self.pos[0], self.pos[1]
-        nex_x, nex_y = pos2[0], pos2[1]
-        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
-        if sub_y > 0 and sub_x == 0:
+    def calc_direction(self, new_pos):
+        if new_pos[1] < self.pos[1] and new_pos[0] == self.pos[0]:
             return "up"
-        elif sub_y < 0 and sub_x == 0:
+        elif new_pos[1] > self.pos[1] and new_pos[0] == self.pos[0]:
             return "down"
-        elif sub_y == 0 and sub_x > 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] > self.pos[0]:
             return "right"
-        elif sub_y == 0 and sub_x < 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] < self.pos[0]:
             return "left"
         else:
             return None
 
-    def choose_direction(self, possible):
-        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
-        if len(pos) != 0:
-            return random.choice(pos)
+    def choose_direction(self, possible_moves):
+        choices = []
+        if self.direction_bias == "Clockwise" or self.direction_bias == "Anti-clockwise":
+            x_left = (self.model.width / 2) - 5
+            x_right = self.model.width - x_left
+            y_up = (self.model.height / 2) - 5
+            y_down = self.model.height - y_up
+            for x in possible_moves:
+                direction = self.calc_direction(x)
+                if self.pos[0] < x_left and self.pos[1] > y_up:
+                    if self.direction_bias == "Anti-clockwise" and direction == "up":
+                        choices.append(x)
+                    elif self.direction_bias == "Clockwise" and direction == "down":
+                        choices.append(x)
+                if self.pos[0] < x_right and self.pos[1] < y_up:
+                    if self.direction_bias == "Anti-clockwise" and direction == "right":
+                        choices.append(x)
+                    elif self.direction_bias == "Clockwise" and direction == "left":
+                        choices.append(x)
+                if self.pos[0] > x_right and self.pos[1] < y_down:
+                    if self.direction_bias == "Anti-clockwise" and direction == "down":
+                        choices.append(x)
+                    elif self.direction_bias == "Clockwise" and direction == "up":
+                        choices.append(x)
+                if self.pos[0] > x_left and self.pos[1] > y_down:
+                    if self.direction_bias == "Anti-clockwise" and direction == "left":
+                        choices.append(x)
+                    elif self.direction_bias == "Clockwise" and direction == "right":
+                        choices.append(x)
         else:
-            return None
+            choices = [x for x in possible_moves if self.calc_direction(x) == self.direction_bias]
+        if len(choices) != 0:
+            return random.choice(choices)
+        else:
+            return None  #self.random.choice(possible_moves)
 
     def update_neighbors(self):
         """
@@ -168,9 +197,9 @@ class Citizen(Agent):
         actives_in_vision = 1.0  # citizen counts herself
         for c in self.neighbors:
             if (
-                c.breed == "citizen"
-                and c.condition == "Active"
-                and c.jail_sentence == 0
+                    c.breed == "citizen"
+                    and c.condition == "Active"
+                    and c.jail_sentence == 0
             ):
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(

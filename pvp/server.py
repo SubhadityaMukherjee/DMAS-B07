@@ -77,8 +77,8 @@ model_params = {
     "direction_bias": UserSettableParameter(
         param_type="choice",
         name="Citizen Direction",
-        value="none",
-        choices=["none", "left", "right", "up", "down"],
+        value="Random",
+        choices=["Random", "Clockwise", "Anti-clockwise", "left", "right", "up", "down"],
         description="",
     ),
     "height": 40,

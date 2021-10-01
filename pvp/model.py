@@ -55,7 +55,7 @@ class ProtestersVsPolice(Model):
             strategy="random",
             arrest_prob_constant=2.3,
             aggression=0.7,  # TODO
-            direction_bias="none",
+            direction_bias="Random",
             movement=True,
             max_iters=1000,
     ):
@@ -132,7 +132,7 @@ class ProtestersVsPolice(Model):
         self.schedule.step()
         print(len(self.arrested_agents))
         for i in self.arrested_agents:
-            if len(self.jailed_agents) < self.jail_capacity:  # TODO: change
+            if len(self.jailed_agents) < self.jail_capacity:
                 self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)

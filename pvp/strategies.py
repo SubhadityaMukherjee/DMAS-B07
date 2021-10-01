@@ -9,7 +9,7 @@ from mesa.space import Grid
 from mesa.time import RandomActivation
 
 from .agents import *
-
+import numpy as np
 # %%
 
 # TODO: randomly distributed cops doesn't fully make sense realistically
@@ -88,7 +88,7 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
+            risk_aversion= np.random.normal(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,

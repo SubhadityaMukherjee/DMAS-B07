@@ -29,7 +29,9 @@ class Cop(Agent):
         self.breed = "cop"
         self.pos = pos
         self.vision = vision
-        self.arresting = False # TODO: make cops disappear for awhile when arresting
+        self.arresting = False
+        # TODO: make cops disappear for awhile when arresting - yes
+        # TODO: change colour while arresting and away
 
     def step(self):
         """
