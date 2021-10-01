@@ -87,6 +87,11 @@ class Citizen(Agent):
             return  # no other changes or movements if agent is in jail.
 
         # TODO: random variable to create deviant behaviour
+        """if self.jail_sentence:
+            # self.jail_sentence -= 1
+            self.model.arrested_agents.append(self)
+            return  # no other changes or movements if agent is in jail.
+        """
 
         if self.aggression > 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
