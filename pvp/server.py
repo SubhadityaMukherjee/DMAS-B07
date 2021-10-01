@@ -75,8 +75,17 @@ model_params = {
             "Random distribution",
             "Block in the middle",
             "Wall of cops",
-            "Street",
-            "Circle",
+            "Street"
+        ],
+        description="",
+    ),
+    "wrap": UserSettableParameter(
+        param_type="choice",
+        name="Wrap",
+        value="Wrap around",
+        choices=[
+            "Wrap around",
+            "Don't wrap around"
         ],
         description="",
     ),

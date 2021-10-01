@@ -58,6 +58,7 @@ class ProtestersVsPolice(Model):
         jail_capacity=50,
         active_threshold=0.1,
         strategy="random",
+        wrap="Wrap around",
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
         direction_bias="none",
@@ -85,6 +86,8 @@ class ProtestersVsPolice(Model):
         self.jailed = 0
         self.test = 0
         self.strategy = strategy
+        self.wrap = wrap
+        print("beginning strategy = ", self.strategy)
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -92,7 +95,7 @@ class ProtestersVsPolice(Model):
         self.schedule = RandomActivation(self)
         self.grid = (
             Grid(height, width, torus=False)
-            if self.strategy == "circle"
+            if self.wrap == "Don't wrap around"
             else Grid(height, width, torus=True)
         )
         self.environment = environment
@@ -135,8 +138,6 @@ class ProtestersVsPolice(Model):
             side_strategy(self, "left", "cop")
         elif self.environment == "Street":
             streets(self)
-        elif self.environment == "Circle":
-            circle(self)
 
     def step(self):
         """
