@@ -40,7 +40,8 @@ from .agents import *
 
 # %%
 
-# TODO
+# TODO: randomly distributed cops doesn&#39;t fully make sense realistically
+
 &#34;&#34;&#34;
 Refactor random adder to work with parts of the grid 
 Add ability to spawn based on values (aka iterate over grid, pick preallocated values and spawn there)
@@ -54,7 +55,7 @@ def grid_adder(self, atype):
     &#34;&#34;&#34;
     if not atype == None:
         self.unique_id += 1
-        self.grid.grid[self.y][self.x] = atype
+        self.grid.grid[self.x][self.y] = atype
         self.schedule.add(atype)
 
 
@@ -101,7 +102,6 @@ def random_strategy(self):  # random distribution
     &#34;&#34;&#34;
     Randomly places objects (original)
     &#34;&#34;&#34;
-
     citizenProb = self.numCitizens / self.numTotalSpaces
     freeProb = (
         self.numTotalSpaces - self.numFreeSpaces - self.barricade
@@ -184,6 +184,106 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of co
 
         else:
             rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
+            grid_adder(self, agent_dict[rand[0]])
+
+
+def streets(self):
+    # middle
+    y_start = self.height / 6
+    y_end = self.height - y_start
+    x_mid = self.width / 2
+    # sides
+    x_end = self.width / 6
+    x_start = self.width - x_end
+
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if (
+            x &gt;= x_start
+            or x &lt;= x_end
+            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
+        ):
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+            direction_bias=self.direction_bias,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x_start &gt; x &gt; x_end and (
+            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
+        ):
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            grid_adder(self, agent_dict[rand[0]])
+
+
+def circle(self):
+    if self.grid.torus == False:
+        self.grid.torus = True
+    # middle
+    y_start = self.height / 6
+    y_end = self.height - y_start
+    x_mid = self.width / 2
+    # sides
+    x_end = self.width / 6
+    x_start = self.width - x_end
+
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if (
+            x &gt;= x_start
+            or x &lt;= x_end
+            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
+        ):
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+            direction_bias=self.direction_bias,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x_start &gt; x &gt; x_end and (
+            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
+        ):
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
 </section>
@@ -194,6 +294,66 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of co
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="pvp.strategies.circle"><code class="name flex">
+<span>def <span class="ident">circle</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def circle(self):
+    if self.grid.torus == False:
+        self.grid.torus = True
+    # middle
+    y_start = self.height / 6
+    y_end = self.height - y_start
+    x_mid = self.width / 2
+    # sides
+    x_end = self.width / 6
+    x_start = self.width - x_end
+
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if (
+            x &gt;= x_start
+            or x &lt;= x_end
+            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
+        ):
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+            direction_bias=self.direction_bias,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x_start &gt; x &gt; x_end and (
+            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
+        ):
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            grid_adder(self, agent_dict[rand[0]])</code></pre>
+</details>
+</dd>
 <dt id="pvp.strategies.grid_adder"><code class="name flex">
 <span>def <span class="ident">grid_adder</span></span>(<span>self, atype)</span>
 </code></dt>
@@ -209,7 +369,7 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of co
     &#34;&#34;&#34;
     if not atype == None:
         self.unique_id += 1
-        self.grid.grid[self.y][self.x] = atype
+        self.grid.grid[self.x][self.y] = atype
         self.schedule.add(atype)</code></pre>
 </details>
 </dd>
@@ -274,7 +434,6 @@ def side_strategy(self, side=&#34;left&#34;, agent=&#34;cop&#34;):  # wall of co
     &#34;&#34;&#34;
     Randomly places objects (original)
     &#34;&#34;&#34;
-
     citizenProb = self.numCitizens / self.numTotalSpaces
     freeProb = (
         self.numTotalSpaces - self.numFreeSpaces - self.barricade
@@ -372,6 +531,64 @@ Reshape back</p></div>
             grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
 </dd>
+<dt id="pvp.strategies.streets"><code class="name flex">
+<span>def <span class="ident">streets</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def streets(self):
+    # middle
+    y_start = self.height / 6
+    y_end = self.height - y_start
+    x_mid = self.width / 2
+    # sides
+    x_end = self.width / 6
+    x_start = self.width - x_end
+
+    num_blocks = 0
+    for (_, x, y) in self.grid.coord_iter():
+        if (
+            x &gt;= x_start
+            or x &lt;= x_end
+            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
+        ):
+            self.x, self.y = x, y
+            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            num_blocks += 1
+
+    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    citizenProb = (free * self.ratio) / self.numTotalSpaces
+    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
+    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+    blockProb = num_blocks / self.numTotalSpaces
+
+    for (_, x, y) in self.grid.coord_iter():
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+            direction_bias=self.direction_bias,
+        )
+        self.x, self.y = x, y
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        if x_start &gt; x &gt; x_end and (
+            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
+        ):
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            grid_adder(self, agent_dict[rand[0]])</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -389,11 +606,13 @@ Reshape back</p></div>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="pvp.strategies.circle" href="#pvp.strategies.circle">circle</a></code></li>
 <li><code><a title="pvp.strategies.grid_adder" href="#pvp.strategies.grid_adder">grid_adder</a></code></li>
 <li><code><a title="pvp.strategies.middle_block" href="#pvp.strategies.middle_block">middle_block</a></code></li>
 <li><code><a title="pvp.strategies.random_strategy" href="#pvp.strategies.random_strategy">random_strategy</a></code></li>
 <li><code><a title="pvp.strategies.side_strategy" href="#pvp.strategies.side_strategy">side_strategy</a></code></li>
+<li><code><a title="pvp.strategies.streets" href="#pvp.strategies.streets">streets</a></code></li>
 </ul>
 </li>
 </ul>

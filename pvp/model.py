@@ -10,6 +10,11 @@ from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .strategies import *
 
+try:
+    from playsound import playsound
+except:
+    pass
+
 
 class ProtestersVsPolice(Model):
     """
@@ -39,25 +44,26 @@ class ProtestersVsPolice(Model):
     """
 
     def __init__(
-            self,
-            height=40,
-            width=40,
-            grid_density=0.7,
-            ratio=0.074,
-            environment="Random distribution",
-            barricade=4,
-            citizen_vision=7,
-            cop_vision=7,
-            legitimacy=0.8,
-            max_jail_term=1000,
-            jail_capacity=50,
-            active_threshold=0.1,
-            strategy="random",
-            arrest_prob_constant=2.3,
-            aggression=0.7,  # TODO
-            direction_bias="none",
-            movement=True,
-            max_iters=1000,
+        self,
+        height=40,
+        width=40,
+        grid_density=0.7,
+        ratio=0.074,
+        environment="Random distribution",
+        barricade=4,
+        citizen_vision=7,
+        cop_vision=7,
+        legitimacy=0.8,
+        max_jail_term=1000,
+        jail_capacity=50,
+        active_threshold=0.1,
+        wrap="Wrap around",
+        arrest_prob_constant=2.3,
+        aggression=0.7,  # TODO
+        direction_bias="none",
+        movement=True,
+        max_iters=1000,
+        funmode=False,
     ):
         super().__init__()
 
@@ -65,6 +71,7 @@ class ProtestersVsPolice(Model):
         self.width = width
         self.grid_density = grid_density
         self.ratio = ratio
+        self.funmode = funmode
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
@@ -77,13 +84,17 @@ class ProtestersVsPolice(Model):
         self.arrested_agents = []
         self.jailed = 0
         self.test = 0
-        self.strategy = strategy
+        self.wrap = wrap
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
-        self.grid = Grid(height, width, torus=False)  # TODO: do we want it to wrap?
+        self.grid = (
+            Grid(height, width, torus=False)
+            if self.wrap == "Don't wrap around"
+            else Grid(height, width, torus=True)
+        )
         self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
@@ -130,9 +141,8 @@ class ProtestersVsPolice(Model):
         Advance the model by one step and collect data.
         """
         self.schedule.step()
-        print(len(self.arrested_agents))
         for i in self.arrested_agents:
-            if len(self.jailed_agents) < self.jail_capacity:  # TODO: change
+            if len(self.jailed_agents) < self.jail_capacity:
                 self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
@@ -144,13 +154,14 @@ class ProtestersVsPolice(Model):
         self.datacollector.collect(self)
 
         self.iteration += 1
+        if self.iteration % 3 == 0 and self.funmode == True:
+            try:
+                playsound("pewpew.mp3")
+            except:
+                pass
+
         if self.iteration > self.max_iters:
             self.running = False
-        print(self.jailed)
-        print(self.test)
-        print(len(self.arrested_agents))
-        print(len(self.jailed_agents))
-
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):

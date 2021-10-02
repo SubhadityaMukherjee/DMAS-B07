@@ -71,14 +71,29 @@ model_params = {
         param_type="choice",
         name="Environment",
         value="Random distribution",
-        choices=["Random distribution", "Block in the middle", "Wall of cops", "Street"],
+        choices=[
+            "Random distribution",
+            "Block in the middle",
+            "Wall of cops",
+            "Street"
+        ],
+        description="",
+    ),
+    "wrap": UserSettableParameter(
+        param_type="choice",
+        name="Wrap",
+        value="Don't wrap around",
+        choices=[
+            "Wrap around",
+            "Don't wrap around"
+        ],
         description="",
     ),
     "direction_bias": UserSettableParameter(
         param_type="choice",
         name="Citizen Direction",
-        value="none",
-        choices=["none", "left", "right", "up", "down"],
+        value="Random",
+        choices=["Random", "Clockwise", "Anti-clockwise", "left", "right", "up", "down"],
         description="",
     ),
     "height": 40,
@@ -87,9 +102,9 @@ model_params = {
     "cop_vision": 7,
     "legitimacy": 0.8,
     "max_jail_term": 1000,
-    "jail_capacity": 50,
-    "strategy": "random",
+    "jail_capacity": 400,
     "barricade": 50,
+    "funmode": False,  # pew pew pew xD
 }
 
 

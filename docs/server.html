@@ -77,7 +77,7 @@ def citizen_cop_portrayal(agent):
 
 
 model_params = {
-    &#34;grid_density&#34;: UserSettableParameter(  # TODO: make grid density
+    &#34;grid_density&#34;: UserSettableParameter(
         param_type=&#34;slider&#34;,
         name=&#34;Grid density&#34;,
         value=0.8,
@@ -86,7 +86,7 @@ model_params = {
         step=0.01,
         description=&#34;&#34;,
     ),
-    &#34;ratio&#34;: UserSettableParameter(  # TODO: make citizen to cop ratio
+    &#34;ratio&#34;: UserSettableParameter(
         param_type=&#34;slider&#34;,
         name=&#34;Citizen to cop ratio&#34;,
         value=0.8,
@@ -99,7 +99,13 @@ model_params = {
         param_type=&#34;choice&#34;,
         name=&#34;Environment&#34;,
         value=&#34;Random distribution&#34;,
-        choices=[&#34;Random distribution&#34;, &#34;Block in the middle&#34;, &#34;Wall of cops&#34;],
+        choices=[
+            &#34;Random distribution&#34;,
+            &#34;Block in the middle&#34;,
+            &#34;Wall of cops&#34;,
+            &#34;Street&#34;,
+            &#34;Circle&#34;,
+        ],
         description=&#34;&#34;,
     ),
     &#34;direction_bias&#34;: UserSettableParameter(
@@ -115,9 +121,10 @@ model_params = {
     &#34;cop_vision&#34;: 7,
     &#34;legitimacy&#34;: 0.8,
     &#34;max_jail_term&#34;: 1000,
-    &#34;jail_capacity&#34;: 500,
+    &#34;jail_capacity&#34;: 400,
     &#34;strategy&#34;: &#34;random&#34;,
     &#34;barricade&#34;: 50,
+    &#34;funmode&#34;: False,  # pew pew pew xD
 }
 
 

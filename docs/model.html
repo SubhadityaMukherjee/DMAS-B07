@@ -38,6 +38,11 @@ from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .strategies import *
 
+try:
+    from playsound import playsound
+except:
+    pass
+
 
 class ProtestersVsPolice(Model):
     &#34;&#34;&#34;
@@ -86,6 +91,7 @@ class ProtestersVsPolice(Model):
         direction_bias=&#34;none&#34;,
         movement=True,
         max_iters=1000,
+        funmode=False,
     ):
         super().__init__()
 
@@ -93,6 +99,7 @@ class ProtestersVsPolice(Model):
         self.width = width
         self.grid_density = grid_density
         self.ratio = ratio
+        self.funmode = funmode
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
@@ -102,14 +109,20 @@ class ProtestersVsPolice(Model):
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
         self.jailed_agents = []
+        self.arrested_agents = []
         self.jailed = 0
+        self.test = 0
         self.strategy = strategy
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
-        self.grid = Grid(height, width, torus=True)
+        self.grid = (
+            Grid(height, width, torus=False)
+            if self.strategy == &#34;circle&#34;
+            else Grid(height, width, torus=True)
+        )
         self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
@@ -148,24 +161,42 @@ class ProtestersVsPolice(Model):
             middle_block(self)
         elif self.environment == &#34;Wall of cops&#34;:
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        elif self.environment == &#34;Street&#34;:
+            streets(self)
+        elif self.environment == &#34;Circle&#34;:
+            circle(self)
 
     def step(self):
         &#34;&#34;&#34;
         Advance the model by one step and collect data.
         &#34;&#34;&#34;
         self.schedule.step()
-        for i in self.jailed_agents:
-            if len(self.jailed_agents) &lt; self.jail_capacity:
+        print(len(self.arrested_agents))
+        for i in self.arrested_agents:
+            if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+                self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
                     self.schedule.remove(i)
+                    self.test += 1
+                    self.arrested_agents.remove(i)
                 except KeyError:
                     pass
         self.datacollector.collect(self)
 
         self.iteration += 1
+        if self.iteration % 3 == 0 and self.funmode == True:
+            try:
+                playsound(&#34;pewpew.mp3&#34;)
+            except:
+                pass
+
         if self.iteration &gt; self.max_iters:
             self.running = False
+        print(self.jailed)
+        print(self.test)
+        print(len(self.arrested_agents))
+        print(len(self.jailed_agents))
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -205,7 +236,7 @@ class ProtestersVsPolice(Model):
 <dl>
 <dt id="pvp.model.ProtestersVsPolice"><code class="flex name class">
 <span>class <span class="ident">ProtestersVsPolice</span></span>
-<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, strategy='random', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000)</span>
+<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, strategy='random', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000, funmode=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Model 1 from "Modeling civil violence: An agent-based computational
@@ -306,6 +337,7 @@ start the model.</p>
         direction_bias=&#34;none&#34;,
         movement=True,
         max_iters=1000,
+        funmode=False,
     ):
         super().__init__()
 
@@ -313,6 +345,7 @@ start the model.</p>
         self.width = width
         self.grid_density = grid_density
         self.ratio = ratio
+        self.funmode = funmode
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
@@ -322,14 +355,20 @@ start the model.</p>
         self.arrest_prob_constant = arrest_prob_constant
         self.movement = movement
         self.jailed_agents = []
+        self.arrested_agents = []
         self.jailed = 0
+        self.test = 0
         self.strategy = strategy
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
-        self.grid = Grid(height, width, torus=True)
+        self.grid = (
+            Grid(height, width, torus=False)
+            if self.strategy == &#34;circle&#34;
+            else Grid(height, width, torus=True)
+        )
         self.environment = environment
 
         self.numTotalSpaces = self.height * self.width
@@ -368,24 +407,42 @@ start the model.</p>
             middle_block(self)
         elif self.environment == &#34;Wall of cops&#34;:
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+        elif self.environment == &#34;Street&#34;:
+            streets(self)
+        elif self.environment == &#34;Circle&#34;:
+            circle(self)
 
     def step(self):
         &#34;&#34;&#34;
         Advance the model by one step and collect data.
         &#34;&#34;&#34;
         self.schedule.step()
-        for i in self.jailed_agents:
-            if len(self.jailed_agents) &lt; self.jail_capacity:
+        print(len(self.arrested_agents))
+        for i in self.arrested_agents:
+            if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+                self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
                     self.schedule.remove(i)
+                    self.test += 1
+                    self.arrested_agents.remove(i)
                 except KeyError:
                     pass
         self.datacollector.collect(self)
 
         self.iteration += 1
+        if self.iteration % 3 == 0 and self.funmode == True:
+            try:
+                playsound(&#34;pewpew.mp3&#34;)
+            except:
+                pass
+
         if self.iteration &gt; self.max_iters:
             self.running = False
+        print(self.jailed)
+        print(self.test)
+        print(len(self.arrested_agents))
+        print(len(self.jailed_agents))
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -484,7 +541,11 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     elif self.environment == &#34;Block in the middle&#34;:
         middle_block(self)
     elif self.environment == &#34;Wall of cops&#34;:
-        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)</code></pre>
+        side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
+    elif self.environment == &#34;Street&#34;:
+        streets(self)
+    elif self.environment == &#34;Circle&#34;:
+        circle(self)</code></pre>
 </details>
 </dd>
 <dt id="pvp.model.ProtestersVsPolice.step"><code class="name flex">
@@ -501,18 +562,32 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     Advance the model by one step and collect data.
     &#34;&#34;&#34;
     self.schedule.step()
-    for i in self.jailed_agents:
-        if len(self.jailed_agents) &lt; self.jail_capacity:
+    print(len(self.arrested_agents))
+    for i in self.arrested_agents:
+        if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+            self.jailed_agents.append(i)
             try:
                 self.grid._remove_agent(i.pos, i)
                 self.schedule.remove(i)
+                self.test += 1
+                self.arrested_agents.remove(i)
             except KeyError:
                 pass
     self.datacollector.collect(self)
 
     self.iteration += 1
+    if self.iteration % 3 == 0 and self.funmode == True:
+        try:
+            playsound(&#34;pewpew.mp3&#34;)
+        except:
+            pass
+
     if self.iteration &gt; self.max_iters:
-        self.running = False</code></pre>
+        self.running = False
+    print(self.jailed)
+    print(self.test)
+    print(len(self.arrested_agents))
+    print(len(self.jailed_agents))</code></pre>
 </details>
 </dd>
 </dl>

@@ -9,7 +9,7 @@ from mesa.space import Grid
 from mesa.time import RandomActivation
 
 from .agents import *
-
+import numpy as np
 # %%
 
 # TODO: randomly distributed cops doesn't fully make sense realistically
@@ -43,7 +43,7 @@ def middle_block(self):  # walk around / block in the middle
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -76,8 +76,8 @@ def random_strategy(self):  # random distribution
     """
     citizenProb = self.numCitizens / self.numTotalSpaces
     freeProb = (
-                       self.numTotalSpaces - self.numFreeSpaces - self.barricade
-               ) / self.numTotalSpaces
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -88,7 +88,7 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
+            risk_aversion= np.random.normal(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -120,13 +120,13 @@ def side_strategy(self, side="left", agent="cop"):  # wall of cops
     if side == "left":  # Set cops
         self.temp_grid[: int(self.numCops)] = 2
     else:
-        self.temp_grid[-int(self.numCops):] = 2
+        self.temp_grid[-int(self.numCops) :] = 2
 
     self.temp_grid = np.reshape(self.temp_grid, (h, w))
     citizenProb = self.numCitizens / self.numTotalSpaces
     freeProb = (
-                       self.numTotalSpaces - self.numFreeSpaces - self.barricade
-               ) / self.numTotalSpaces
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
     copProb = self.numCops / self.numTotalSpaces
     blockProb = self.barricade / self.numTotalSpaces
 
@@ -170,12 +170,16 @@ def streets(self):
 
     num_blocks = 0
     for (_, x, y) in self.grid.coord_iter():
-        if x >= x_start or x <= x_end or ((x == x_mid or x == (x_mid+1)) and y_start <= y <= y_end):
+        if (
+            x >= x_start
+            or x <= x_end
+            or ((x == x_mid or x == (x_mid + 1)) and y_start <= y <= y_end)
+        ):
             self.x, self.y = x, y
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -197,6 +201,8 @@ def streets(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        if x_start > x > x_end and (x != x_mid and x != (x_mid + 1) or (y < y_start or y > y_end)):
+        if x_start > x > x_end and (
+            x != x_mid and x != (x_mid + 1) or (y < y_start or y > y_end)
+        ):
             rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
