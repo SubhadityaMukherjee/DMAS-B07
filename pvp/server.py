@@ -82,7 +82,7 @@ model_params = {
     "wrap": UserSettableParameter(
         param_type="choice",
         name="Wrap",
-        value="Wrap around",
+        value="Don't wrap around",
         choices=[
             "Wrap around",
             "Don't wrap around"
@@ -103,7 +103,6 @@ model_params = {
     "legitimacy": 0.8,
     "max_jail_term": 1000,
     "jail_capacity": 400,
-    "strategy": "random",
     "barricade": 50,
     "funmode": False,  # pew pew pew xD
 }

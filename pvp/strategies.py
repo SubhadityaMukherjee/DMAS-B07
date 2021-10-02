@@ -43,7 +43,7 @@ def middle_block(self):  # walk around / block in the middle
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -179,7 +179,7 @@ def streets(self):
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces

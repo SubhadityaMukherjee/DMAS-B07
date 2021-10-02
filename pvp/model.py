@@ -57,7 +57,6 @@ class ProtestersVsPolice(Model):
         max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.1,
-        strategy="random",
         wrap="Wrap around",
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
@@ -85,9 +84,7 @@ class ProtestersVsPolice(Model):
         self.arrested_agents = []
         self.jailed = 0
         self.test = 0
-        self.strategy = strategy
         self.wrap = wrap
-        print("beginning strategy = ", self.strategy)
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -144,7 +141,6 @@ class ProtestersVsPolice(Model):
         Advance the model by one step and collect data.
         """
         self.schedule.step()
-        print(len(self.arrested_agents))
         for i in self.arrested_agents:
             if len(self.jailed_agents) < self.jail_capacity:
                 self.jailed_agents.append(i)
@@ -166,10 +162,6 @@ class ProtestersVsPolice(Model):
 
         if self.iteration > self.max_iters:
             self.running = False
-        print(self.jailed)
-        print(self.test)
-        print(len(self.arrested_agents))
-        print(len(self.jailed_agents))
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
