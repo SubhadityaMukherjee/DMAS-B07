@@ -10,6 +10,7 @@ from .model import ProtestersVsPolice
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"
 AGENT_REBEL_COLOR = "#CC0000"
+AGENT_DEVIANT_COLOR = "#00FBFF"
 JAIL_COLOR = "#757575"
 BARRICADE_COLOR = "#00FF00"
 
@@ -29,6 +30,8 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == "Quiescent" else AGENT_REBEL_COLOR
         )
+        #ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal["Color"] = color
         portrayal["r"] = 0.8

@@ -93,6 +93,10 @@ class Citizen(Agent):
             return  # no other changes or movements if agent is in jail.
         """
 
+        # ADDED THIS LUKE:
+        if self.risk_aversion < 0.0000000000000000000001 and self.condition != "Active":
+            self.condition = "Deviant" ##
+
         if self.aggression > 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
