@@ -13,7 +13,6 @@ from .agents import *
 # from random import choices
 
 
-
 # %%
 
 # TODO: randomly distributed cops doesn't fully make sense realistically
