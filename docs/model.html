@@ -85,7 +85,7 @@ class ProtestersVsPolice(Model):
         max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.1,
-        strategy=&#34;random&#34;,
+        wrap=&#34;Wrap around&#34;,
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
         direction_bias=&#34;none&#34;,
@@ -112,7 +112,7 @@ class ProtestersVsPolice(Model):
         self.arrested_agents = []
         self.jailed = 0
         self.test = 0
-        self.strategy = strategy
+        self.wrap = wrap
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -120,7 +120,7 @@ class ProtestersVsPolice(Model):
         self.schedule = RandomActivation(self)
         self.grid = (
             Grid(height, width, torus=False)
-            if self.strategy == &#34;circle&#34;
+            if self.wrap == &#34;Don&#39;t wrap around&#34;
             else Grid(height, width, torus=True)
         )
         self.environment = environment
@@ -163,17 +163,14 @@ class ProtestersVsPolice(Model):
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
-        elif self.environment == &#34;Circle&#34;:
-            circle(self)
 
     def step(self):
         &#34;&#34;&#34;
         Advance the model by one step and collect data.
         &#34;&#34;&#34;
         self.schedule.step()
-        print(len(self.arrested_agents))
         for i in self.arrested_agents:
-            if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+            if len(self.jailed_agents) &lt; self.jail_capacity:
                 self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
@@ -193,10 +190,6 @@ class ProtestersVsPolice(Model):
 
         if self.iteration &gt; self.max_iters:
             self.running = False
-        print(self.jailed)
-        print(self.test)
-        print(len(self.arrested_agents))
-        print(len(self.jailed_agents))
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -230,13 +223,107 @@ class ProtestersVsPolice(Model):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pvp.model.normal"><code class="name flex">
+<span>def <span class="ident">normal</span></span>(<span>loc=0.0, scale=1.0, size=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw random samples from a normal (Gaussian) distribution.</p>
+<p>The probability density function of the normal distribution, first
+derived by De Moivre and 200 years later by both Gauss and Laplace
+independently [2]_, is often called the bell curve because of
+its characteristic shape (see the example below).</p>
+<p>The normal distributions occurs often in nature.
+For example, it
+describes the commonly occurring distribution of samples influenced
+by a large number of tiny, random disturbances, each with its own
+unique distribution [2]_.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <code><a title="pvp.model.normal" href="#pvp.model.normal">RandomState.normal()</a></code> method of a <code>default_rng()</code>
+instance instead; please see the :ref:<code>random-quick-start</code>.</p>
+</div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>loc</code></strong> :&ensp;<code>float</code> or <code>array_like</code> of <code>floats</code></dt>
+<dd>Mean ("centre") of the distribution.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>float</code> or <code>array_like</code> of <code>floats</code></dt>
+<dd>Standard deviation (spread or "width") of the distribution. Must be
+non-negative.</dd>
+<dt><strong><code>size</code></strong> :&ensp;<code>int</code> or <code>tuple</code> of <code>ints</code>, optional</dt>
+<dd>Output shape.
+If the given shape is, e.g., <code>(m, n, k)</code>, then
+<code>m * n * k</code> samples are drawn.
+If size is <code>None</code> (default),
+a single value is returned if <code>loc</code> and <code>scale</code> are both scalars.
+Otherwise, <code>np.broadcast(loc, scale).size</code> samples are drawn.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>out</code></strong> :&ensp;<code>ndarray</code> or <code>scalar</code></dt>
+<dd>Drawn samples from the parameterized normal distribution.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<dl>
+<dt><code>scipy.stats.norm</code></dt>
+<dd>probability density function, distribution or cumulative density function, etc.</dd>
+<dt><code>Generator.normal</code></dt>
+<dd>which should be used for new code.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The probability density for the Gaussian distribution is</p>
+<p>[ e^{ - \frac{ (x - \mu)^2 } {2 \sigma^2} }, ]
+where :math:<code>\mu</code> is the mean and :math:<code>\sigma</code> the standard
+deviation. The square of the standard deviation, :math:<code>\sigma^2</code>,
+is called the variance.</p>
+<p>The function has its peak at the mean, and its "spread" increases with
+the standard deviation (the function reaches 0.607 times its maximum at
+:math:<code>x + \sigma</code> and :math:<code>x - \sigma</code> [2]_).
+This implies that
+normal is more likely to return samples lying close to the mean, rather
+than those far away.</p>
+<h2 id="references">References</h2>
+<p>.. [1] Wikipedia, "Normal distribution",
+<a href="https://en.wikipedia.org/wiki/Normal_distribution">https://en.wikipedia.org/wiki/Normal_distribution</a>
+.. [2] P. R. Peebles Jr., "Central Limit Theorem" in "Probability,
+Random Variables and Random Signal Principles", 4th ed., 2001,
+pp. 51, 51, 125.</p>
+<h2 id="examples">Examples</h2>
+<p>Draw samples from the distribution:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; mu, sigma = 0, 0.1 # mean and standard deviation
+&gt;&gt;&gt; s = np.random.normal(mu, sigma, 1000)
+</code></pre>
+<p>Verify the mean and the variance:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; abs(mu - np.mean(s))
+0.0  # may vary
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; abs(sigma - np.std(s, ddof=1))
+0.1  # may vary
+</code></pre>
+<p>Display the histogram of the samples, along with
+the probability density function:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; import matplotlib.pyplot as plt
+&gt;&gt;&gt; count, bins, ignored = plt.hist(s, 30, density=True)
+&gt;&gt;&gt; plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+...                np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
+...          linewidth=2, color='r')
+&gt;&gt;&gt; plt.show()
+</code></pre>
+<p>Two-by-four array of samples from N(3, 6.25):</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; np.random.normal(3, 2.5, size=(2, 4))
+array([[-4.49401501,  4.00950034, -1.81814867,  7.29718677],   # random
+       [ 0.39924804,  4.68456316,  4.99394529,  4.84057254]])  # random
+</code></pre></div>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
 <dt id="pvp.model.ProtestersVsPolice"><code class="flex name class">
 <span>class <span class="ident">ProtestersVsPolice</span></span>
-<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, strategy='random', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000, funmode=False)</span>
+<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, wrap='Wrap around', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000, funmode=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Model 1 from "Modeling civil violence: An agent-based computational
@@ -331,7 +418,7 @@ start the model.</p>
         max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.1,
-        strategy=&#34;random&#34;,
+        wrap=&#34;Wrap around&#34;,
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
         direction_bias=&#34;none&#34;,
@@ -358,7 +445,7 @@ start the model.</p>
         self.arrested_agents = []
         self.jailed = 0
         self.test = 0
-        self.strategy = strategy
+        self.wrap = wrap
         self.max_iters = max_iters
         self.iteration = 0
         self.aggression = self.random.random()
@@ -366,7 +453,7 @@ start the model.</p>
         self.schedule = RandomActivation(self)
         self.grid = (
             Grid(height, width, torus=False)
-            if self.strategy == &#34;circle&#34;
+            if self.wrap == &#34;Don&#39;t wrap around&#34;
             else Grid(height, width, torus=True)
         )
         self.environment = environment
@@ -409,17 +496,14 @@ start the model.</p>
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
-        elif self.environment == &#34;Circle&#34;:
-            circle(self)
 
     def step(self):
         &#34;&#34;&#34;
         Advance the model by one step and collect data.
         &#34;&#34;&#34;
         self.schedule.step()
-        print(len(self.arrested_agents))
         for i in self.arrested_agents:
-            if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+            if len(self.jailed_agents) &lt; self.jail_capacity:
                 self.jailed_agents.append(i)
                 try:
                     self.grid._remove_agent(i.pos, i)
@@ -439,10 +523,6 @@ start the model.</p>
 
         if self.iteration &gt; self.max_iters:
             self.running = False
-        print(self.jailed)
-        print(self.test)
-        print(len(self.arrested_agents))
-        print(len(self.jailed_agents))
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -543,9 +623,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     elif self.environment == &#34;Wall of cops&#34;:
         side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
     elif self.environment == &#34;Street&#34;:
-        streets(self)
-    elif self.environment == &#34;Circle&#34;:
-        circle(self)</code></pre>
+        streets(self)</code></pre>
 </details>
 </dd>
 <dt id="pvp.model.ProtestersVsPolice.step"><code class="name flex">
@@ -562,9 +640,8 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     Advance the model by one step and collect data.
     &#34;&#34;&#34;
     self.schedule.step()
-    print(len(self.arrested_agents))
     for i in self.arrested_agents:
-        if len(self.jailed_agents) &lt; self.jail_capacity:  # TODO: change
+        if len(self.jailed_agents) &lt; self.jail_capacity:
             self.jailed_agents.append(i)
             try:
                 self.grid._remove_agent(i.pos, i)
@@ -583,11 +660,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
             pass
 
     if self.iteration &gt; self.max_iters:
-        self.running = False
-    print(self.jailed)
-    print(self.test)
-    print(len(self.arrested_agents))
-    print(len(self.jailed_agents))</code></pre>
+        self.running = False</code></pre>
 </details>
 </dd>
 </dl>
@@ -604,6 +677,11 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pvp" href="index.html">pvp</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pvp.model.normal" href="#pvp.model.normal">normal</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

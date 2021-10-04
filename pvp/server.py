@@ -75,7 +75,7 @@ model_params = {
             "Random distribution",
             "Block in the middle",
             "Wall of cops",
-            "Street"
+            "Street",
         ],
         description="",
     ),
@@ -83,17 +83,22 @@ model_params = {
         param_type="choice",
         name="Wrap",
         value="Don't wrap around",
-        choices=[
-            "Wrap around",
-            "Don't wrap around"
-        ],
+        choices=["Wrap around", "Don't wrap around"],
         description="",
     ),
     "direction_bias": UserSettableParameter(
         param_type="choice",
         name="Citizen Direction",
         value="Random",
-        choices=["Random", "Clockwise", "Anti-clockwise", "left", "right", "up", "down"],
+        choices=[
+            "Random",
+            "Clockwise",
+            "Anti-clockwise",
+            "left",
+            "right",
+            "up",
+            "down",
+        ],
         description="",
     ),
     "height": 40,

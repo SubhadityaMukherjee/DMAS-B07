@@ -110,11 +110,17 @@ class Citizen(Agent):
         &#34;&#34;&#34;
         Decide whether to activate, then move if applicable.
         &#34;&#34;&#34;
+        if self.jail_sentence:
+            self.jail_sentence -= 1
+            return  # no other changes or movements if agent is in jail.
+
+        # TODO: random variable to create deviant behaviour
         &#34;&#34;&#34;if self.jail_sentence:
             # self.jail_sentence -= 1
             self.model.arrested_agents.append(self)
             return  # no other changes or movements if agent is in jail.
         &#34;&#34;&#34;
+
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
@@ -143,36 +149,72 @@ class Citizen(Agent):
             self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
         if self.model.movement and self.empty_neighbors:
-            if self.direction_bias != &#34;none&#34;:
+            if self.direction_bias != &#34;Random&#34;:
+
                 if len(self.empty_neighbors) &gt; 0:
-                    possibilites = self.choose_direction(self.empty_neighbors)
-                    if possibilites != None:
-                        self.model.grid.move_agent(self, possibilites)
+                    move = self.choose_direction(self.empty_neighbors)
+                    if move != None:
+                        print(self.pos, move, self.unique_id)
+                        self.model.grid.move_agent(self, move)
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
                 self.model.grid.move_agent(self, new_pos)
 
-    def calc_direction(self, pos2):
-        cur_x, cur_y = self.pos[0], self.pos[1]
-        nex_x, nex_y = pos2[0], pos2[1]
-        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
-        if sub_y &gt; 0 and sub_x == 0:
+    def calc_direction(self, new_pos):
+        if new_pos[1] &lt; self.pos[1] and new_pos[0] == self.pos[0]:
             return &#34;up&#34;
-        elif sub_y &lt; 0 and sub_x == 0:
+        elif new_pos[1] &gt; self.pos[1] and new_pos[0] == self.pos[0]:
             return &#34;down&#34;
-        elif sub_y == 0 and sub_x &gt; 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] &gt; self.pos[0]:
             return &#34;right&#34;
-        elif sub_y == 0 and sub_x &lt; 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] &lt; self.pos[0]:
             return &#34;left&#34;
         else:
             return None
 
-    def choose_direction(self, possible):
-        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
-        if len(pos) != 0:
-            return random.choice(pos)
+    def choose_direction(self, possible_moves):
+        choices = []
+        x_left = (self.model.width / 2) - 5
+        y_up = (self.model.height / 2) - 5
+        x_right = self.model.width - x_left
+        y_down = self.model.height - y_up
+
+        if (
+            self.direction_bias == &#34;Clockwise&#34;
+            or self.direction_bias == &#34;Anti-clockwise&#34;
+        ):
+            for x in possible_moves:
+                direction = self.calc_direction(x)
+                if self.pos[0] &lt; x_left and self.pos[1] &gt; y_up:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;up&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;down&#34;:
+                        choices.append(x)
+                if self.pos[0] &lt; x_right and self.pos[1] &lt; y_up:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;right&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;left&#34;:
+                        choices.append(x)
+                if self.pos[0] &gt; x_right and self.pos[1] &lt; y_down:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;down&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;up&#34;:
+                        choices.append(x)
+                if self.pos[0] &gt; x_left and self.pos[1] &gt; y_down:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;left&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;right&#34;:
+                        choices.append(x)
         else:
-            return None
+            choices = [
+                x
+                for x in possible_moves
+                if self.calc_direction(x) == self.direction_bias
+            ]
+        if len(choices) != 0:
+            return random.choice(choices)
+        else:
+            return None  # self.random.choice(possible_moves)
 
     def update_neighbors(self):
         &#34;&#34;&#34;
@@ -358,11 +400,17 @@ agent can inspect. Exogenous.</dd>
         &#34;&#34;&#34;
         Decide whether to activate, then move if applicable.
         &#34;&#34;&#34;
+        if self.jail_sentence:
+            self.jail_sentence -= 1
+            return  # no other changes or movements if agent is in jail.
+
+        # TODO: random variable to create deviant behaviour
         &#34;&#34;&#34;if self.jail_sentence:
             # self.jail_sentence -= 1
             self.model.arrested_agents.append(self)
             return  # no other changes or movements if agent is in jail.
         &#34;&#34;&#34;
+
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
 
@@ -391,36 +439,72 @@ agent can inspect. Exogenous.</dd>
             self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
         if self.model.movement and self.empty_neighbors:
-            if self.direction_bias != &#34;none&#34;:
+            if self.direction_bias != &#34;Random&#34;:
+
                 if len(self.empty_neighbors) &gt; 0:
-                    possibilites = self.choose_direction(self.empty_neighbors)
-                    if possibilites != None:
-                        self.model.grid.move_agent(self, possibilites)
+                    move = self.choose_direction(self.empty_neighbors)
+                    if move != None:
+                        print(self.pos, move, self.unique_id)
+                        self.model.grid.move_agent(self, move)
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
                 self.model.grid.move_agent(self, new_pos)
 
-    def calc_direction(self, pos2):
-        cur_x, cur_y = self.pos[0], self.pos[1]
-        nex_x, nex_y = pos2[0], pos2[1]
-        sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
-        if sub_y &gt; 0 and sub_x == 0:
+    def calc_direction(self, new_pos):
+        if new_pos[1] &lt; self.pos[1] and new_pos[0] == self.pos[0]:
             return &#34;up&#34;
-        elif sub_y &lt; 0 and sub_x == 0:
+        elif new_pos[1] &gt; self.pos[1] and new_pos[0] == self.pos[0]:
             return &#34;down&#34;
-        elif sub_y == 0 and sub_x &gt; 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] &gt; self.pos[0]:
             return &#34;right&#34;
-        elif sub_y == 0 and sub_x &lt; 0:
+        elif new_pos[1] == self.pos[1] and new_pos[0] &lt; self.pos[0]:
             return &#34;left&#34;
         else:
             return None
 
-    def choose_direction(self, possible):
-        pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
-        if len(pos) != 0:
-            return random.choice(pos)
+    def choose_direction(self, possible_moves):
+        choices = []
+        x_left = (self.model.width / 2) - 5
+        y_up = (self.model.height / 2) - 5
+        x_right = self.model.width - x_left
+        y_down = self.model.height - y_up
+
+        if (
+            self.direction_bias == &#34;Clockwise&#34;
+            or self.direction_bias == &#34;Anti-clockwise&#34;
+        ):
+            for x in possible_moves:
+                direction = self.calc_direction(x)
+                if self.pos[0] &lt; x_left and self.pos[1] &gt; y_up:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;up&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;down&#34;:
+                        choices.append(x)
+                if self.pos[0] &lt; x_right and self.pos[1] &lt; y_up:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;right&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;left&#34;:
+                        choices.append(x)
+                if self.pos[0] &gt; x_right and self.pos[1] &lt; y_down:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;down&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;up&#34;:
+                        choices.append(x)
+                if self.pos[0] &gt; x_left and self.pos[1] &gt; y_down:
+                    if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;left&#34;:
+                        choices.append(x)
+                    elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;right&#34;:
+                        choices.append(x)
         else:
-            return None
+            choices = [
+                x
+                for x in possible_moves
+                if self.calc_direction(x) == self.direction_bias
+            ]
+        if len(choices) != 0:
+            return random.choice(choices)
+        else:
+            return None  # self.random.choice(possible_moves)
 
     def update_neighbors(self):
         &#34;&#34;&#34;
@@ -460,7 +544,7 @@ agent can inspect. Exogenous.</dd>
 <h3>Methods</h3>
 <dl>
 <dt id="pvp.agents.citizen.Citizen.calc_direction"><code class="name flex">
-<span>def <span class="ident">calc_direction</span></span>(<span>self, pos2)</span>
+<span>def <span class="ident">calc_direction</span></span>(<span>self, new_pos)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -468,24 +552,21 @@ agent can inspect. Exogenous.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calc_direction(self, pos2):
-    cur_x, cur_y = self.pos[0], self.pos[1]
-    nex_x, nex_y = pos2[0], pos2[1]
-    sub_x, sub_y = nex_x - cur_x, nex_y - cur_y
-    if sub_y &gt; 0 and sub_x == 0:
+<pre><code class="python">def calc_direction(self, new_pos):
+    if new_pos[1] &lt; self.pos[1] and new_pos[0] == self.pos[0]:
         return &#34;up&#34;
-    elif sub_y &lt; 0 and sub_x == 0:
+    elif new_pos[1] &gt; self.pos[1] and new_pos[0] == self.pos[0]:
         return &#34;down&#34;
-    elif sub_y == 0 and sub_x &gt; 0:
+    elif new_pos[1] == self.pos[1] and new_pos[0] &gt; self.pos[0]:
         return &#34;right&#34;
-    elif sub_y == 0 and sub_x &lt; 0:
+    elif new_pos[1] == self.pos[1] and new_pos[0] &lt; self.pos[0]:
         return &#34;left&#34;
     else:
         return None</code></pre>
 </details>
 </dd>
 <dt id="pvp.agents.citizen.Citizen.choose_direction"><code class="name flex">
-<span>def <span class="ident">choose_direction</span></span>(<span>self, possible)</span>
+<span>def <span class="ident">choose_direction</span></span>(<span>self, possible_moves)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -493,12 +574,49 @@ agent can inspect. Exogenous.</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def choose_direction(self, possible):
-    pos = [x for x in possible if self.calc_direction(x) == self.direction_bias]
-    if len(pos) != 0:
-        return random.choice(pos)
+<pre><code class="python">def choose_direction(self, possible_moves):
+    choices = []
+    x_left = (self.model.width / 2) - 5
+    y_up = (self.model.height / 2) - 5
+    x_right = self.model.width - x_left
+    y_down = self.model.height - y_up
+
+    if (
+        self.direction_bias == &#34;Clockwise&#34;
+        or self.direction_bias == &#34;Anti-clockwise&#34;
+    ):
+        for x in possible_moves:
+            direction = self.calc_direction(x)
+            if self.pos[0] &lt; x_left and self.pos[1] &gt; y_up:
+                if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;up&#34;:
+                    choices.append(x)
+                elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;down&#34;:
+                    choices.append(x)
+            if self.pos[0] &lt; x_right and self.pos[1] &lt; y_up:
+                if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;right&#34;:
+                    choices.append(x)
+                elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;left&#34;:
+                    choices.append(x)
+            if self.pos[0] &gt; x_right and self.pos[1] &lt; y_down:
+                if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;down&#34;:
+                    choices.append(x)
+                elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;up&#34;:
+                    choices.append(x)
+            if self.pos[0] &gt; x_left and self.pos[1] &gt; y_down:
+                if self.direction_bias == &#34;Anti-clockwise&#34; and direction == &#34;left&#34;:
+                    choices.append(x)
+                elif self.direction_bias == &#34;Clockwise&#34; and direction == &#34;right&#34;:
+                    choices.append(x)
     else:
-        return None</code></pre>
+        choices = [
+            x
+            for x in possible_moves
+            if self.calc_direction(x) == self.direction_bias
+        ]
+    if len(choices) != 0:
+        return random.choice(choices)
+    else:
+        return None  # self.random.choice(possible_moves)</code></pre>
 </details>
 </dd>
 <dt id="pvp.agents.citizen.Citizen.step"><code class="name flex">
@@ -514,11 +632,17 @@ agent can inspect. Exogenous.</dd>
     &#34;&#34;&#34;
     Decide whether to activate, then move if applicable.
     &#34;&#34;&#34;
+    if self.jail_sentence:
+        self.jail_sentence -= 1
+        return  # no other changes or movements if agent is in jail.
+
+    # TODO: random variable to create deviant behaviour
     &#34;&#34;&#34;if self.jail_sentence:
         # self.jail_sentence -= 1
         self.model.arrested_agents.append(self)
         return  # no other changes or movements if agent is in jail.
     &#34;&#34;&#34;
+
     if self.aggression &gt; 0.3:  # TODO
         self.risk_aversion = self.risk_aversion / 2
 
@@ -547,11 +671,13 @@ agent can inspect. Exogenous.</dd>
         self.condition = &#34;Active&#34;&#39;&#39;&#39;
 
     if self.model.movement and self.empty_neighbors:
-        if self.direction_bias != &#34;none&#34;:
+        if self.direction_bias != &#34;Random&#34;:
+
             if len(self.empty_neighbors) &gt; 0:
-                possibilites = self.choose_direction(self.empty_neighbors)
-                if possibilites != None:
-                    self.model.grid.move_agent(self, possibilites)
+                move = self.choose_direction(self.empty_neighbors)
+                if move != None:
+                    print(self.pos, move, self.unique_id)
+                    self.model.grid.move_agent(self, move)
         else:
             new_pos = self.random.choice(self.empty_neighbors)
             self.model.grid.move_agent(self, new_pos)</code></pre>

@@ -57,6 +57,8 @@ class Cop(Agent):
         self.breed = &#34;cop&#34;
         self.pos = pos
         self.vision = vision
+        # TODO: make cops disappear for awhile when arresting - yes
+        # TODO: change colour while arresting and away
         self.arresting = False  # TODO: make cops disappear for awhile when arresting
         self.arrested_step = 0
         self.wait_for = 40  # no of steps to wait before arresting someone else
@@ -185,6 +187,8 @@ agent can inspect. Exogenous.</dd>
         self.breed = &#34;cop&#34;
         self.pos = pos
         self.vision = vision
+        # TODO: make cops disappear for awhile when arresting - yes
+        # TODO: change colour while arresting and away
         self.arresting = False  # TODO: make cops disappear for awhile when arresting
         self.arrested_step = 0
         self.wait_for = 40  # no of steps to wait before arresting someone else
