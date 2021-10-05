@@ -1,3 +1,7 @@
+import argparse
+import re
+
+from mesa.batchrunner import BatchRunner
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
@@ -6,6 +10,10 @@ from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .model import ProtestersVsPolice
+
+# ap = argparse.ArgumentParser("Protesters Vs Police")
+# ap.add_argument("-b", action='store_true',help="Batch runner")
+# ags = ap.parse_args()
 
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"
@@ -143,7 +151,7 @@ class AgentLeftElement(TextElement):
                 cop += 1
             if agent.breed == "Block":
                 block += 1
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}"""
+        stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}"""
         return stats
 
 
@@ -157,6 +165,11 @@ chart = ChartModule(
     data_collector_name="datacollector",
 )
 
+# def batch_run(model):
+# print(ags.b)
+# if ags.b == True:
+#     pass
+# else:
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,

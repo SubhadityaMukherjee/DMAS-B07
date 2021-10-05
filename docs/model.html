@@ -29,6 +29,7 @@
 <pre><code class="python">import os
 from random import choices
 
+import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
@@ -133,6 +134,7 @@ class ProtestersVsPolice(Model):
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
         self.citizen, self.cop, self.block = None, None, None
+        self.avg_agg = 0
 
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
@@ -185,6 +187,7 @@ class ProtestersVsPolice(Model):
         self.datacollector.collect(self)
 
         self.iteration += 1
+        self.count_avg_agg()
         if self.iteration % 3 == 0 and self.funmode == True:
             try:
                 playsound(&#34;pewpew.mp3&#34;)
@@ -231,7 +234,21 @@ class ProtestersVsPolice(Model):
         for agent in model.schedule.agents:
             if agent.breed == &#34;citizen&#34; and agent.jail_sentence:
                 count += 1
-        return count</code></pre>
+        return count
+
+    def count_avg_agg(self):
+        &#34;&#34;&#34;
+        Helper method to count avg aggression
+        &#34;&#34;&#34;
+        count = np.array(
+            [
+                agent.aggression
+                for agent in self.schedule.agents
+                if agent.breed == &#34;citizen&#34;
+                and (agent.condition in [&#34;Active&#34;, &#34;Deviant&#34;])
+            ]
+        )
+        self.avg_agg = str(round(np.average(count), 4))</code></pre>
 </details>
 </section>
 <section>
@@ -481,6 +498,7 @@ start the model.</p>
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
         self.citizen, self.cop, self.block = None, None, None
+        self.avg_agg = 0
 
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
@@ -533,6 +551,7 @@ start the model.</p>
         self.datacollector.collect(self)
 
         self.iteration += 1
+        self.count_avg_agg()
         if self.iteration % 3 == 0 and self.funmode == True:
             try:
                 playsound(&#34;pewpew.mp3&#34;)
@@ -579,7 +598,21 @@ start the model.</p>
         for agent in model.schedule.agents:
             if agent.breed == &#34;citizen&#34; and agent.jail_sentence:
                 count += 1
-        return count</code></pre>
+        return count
+
+    def count_avg_agg(self):
+        &#34;&#34;&#34;
+        Helper method to count avg aggression
+        &#34;&#34;&#34;
+        count = np.array(
+            [
+                agent.aggression
+                for agent in self.schedule.agents
+                if agent.breed == &#34;citizen&#34;
+                and (agent.condition in [&#34;Active&#34;, &#34;Deviant&#34;])
+            ]
+        )
+        self.avg_agg = str(round(np.average(count), 4))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -636,6 +669,30 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pvp.model.ProtestersVsPolice.count_avg_agg"><code class="name flex">
+<span>def <span class="ident">count_avg_agg</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper method to count avg aggression</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def count_avg_agg(self):
+    &#34;&#34;&#34;
+    Helper method to count avg aggression
+    &#34;&#34;&#34;
+    count = np.array(
+        [
+            agent.aggression
+            for agent in self.schedule.agents
+            if agent.breed == &#34;citizen&#34;
+            and (agent.condition in [&#34;Active&#34;, &#34;Deviant&#34;])
+        ]
+    )
+    self.avg_agg = str(round(np.average(count), 4))</code></pre>
+</details>
+</dd>
 <dt id="pvp.model.ProtestersVsPolice.experiment_logger"><code class="name flex">
 <span>def <span class="ident">experiment_logger</span></span>(<span>self, df)</span>
 </code></dt>
@@ -698,6 +755,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     self.datacollector.collect(self)
 
     self.iteration += 1
+    self.count_avg_agg()
     if self.iteration % 3 == 0 and self.funmode == True:
         try:
             playsound(&#34;pewpew.mp3&#34;)
@@ -742,7 +800,8 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 <ul>
 <li>
 <h4><code><a title="pvp.model.ProtestersVsPolice" href="#pvp.model.ProtestersVsPolice">ProtestersVsPolice</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="pvp.model.ProtestersVsPolice.count_avg_agg" href="#pvp.model.ProtestersVsPolice.count_avg_agg">count_avg_agg</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.count_jailed" href="#pvp.model.ProtestersVsPolice.count_jailed">count_jailed</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.count_type_citizens" href="#pvp.model.ProtestersVsPolice.count_type_citizens">count_type_citizens</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.experiment_logger" href="#pvp.model.ProtestersVsPolice.experiment_logger">experiment_logger</a></code></li>

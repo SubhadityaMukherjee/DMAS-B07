@@ -26,7 +26,11 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from mesa.visualization.ModularVisualization import ModularServer
+<pre><code class="python">import argparse
+import re
+
+from mesa.batchrunner import BatchRunner
+from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
@@ -34,6 +38,10 @@ from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .model import ProtestersVsPolice
+
+# ap = argparse.ArgumentParser(&#34;Protesters Vs Police&#34;)
+# ap.add_argument(&#34;-b&#34;, action=&#39;store_true&#39;,help=&#34;Batch runner&#34;)
+# ags = ap.parse_args()
 
 COP_COLOR = &#34;#000000&#34;
 AGENT_QUIET_COLOR = &#34;#0066CC&#34;
@@ -171,7 +179,7 @@ class AgentLeftElement(TextElement):
                 cop += 1
             if agent.breed == &#34;Block&#34;:
                 block += 1
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
         return stats
 
 
@@ -185,6 +193,11 @@ chart = ChartModule(
     data_collector_name=&#34;datacollector&#34;,
 )
 
+# def batch_run(model):
+# print(ags.b)
+# if ags.b == True:
+#     pass
+# else:
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,
@@ -279,7 +292,7 @@ server = ModularServer(
                 cop += 1
             if agent.breed == &#34;Block&#34;:
                 block += 1
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
         return stats</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -316,7 +329,7 @@ server = ModularServer(
             cop += 1
         if agent.breed == &#34;Block&#34;:
             block += 1
-    stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+    stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
     return stats</code></pre>
 </details>
 </dd>

@@ -1,6 +1,7 @@
 import os
 from random import choices
 
+import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
@@ -105,6 +106,7 @@ class ProtestersVsPolice(Model):
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
         self.citizen, self.cop, self.block = None, None, None
+        self.avg_agg = 0
 
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
@@ -157,6 +159,7 @@ class ProtestersVsPolice(Model):
         self.datacollector.collect(self)
 
         self.iteration += 1
+        self.count_avg_agg()
         if self.iteration % 3 == 0 and self.funmode == True:
             try:
                 playsound("pewpew.mp3")
@@ -204,3 +207,17 @@ class ProtestersVsPolice(Model):
             if agent.breed == "citizen" and agent.jail_sentence:
                 count += 1
         return count
+
+    def count_avg_agg(self):
+        """
+        Helper method to count avg aggression
+        """
+        count = np.array(
+            [
+                agent.aggression
+                for agent in self.schedule.agents
+                if agent.breed == "citizen"
+                and (agent.condition in ["Active", "Deviant"])
+            ]
+        )
+        self.avg_agg = str(round(np.average(count), 4))
