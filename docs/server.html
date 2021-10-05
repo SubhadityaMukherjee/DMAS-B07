@@ -38,6 +38,7 @@ from .model import ProtestersVsPolice
 COP_COLOR = &#34;#000000&#34;
 AGENT_QUIET_COLOR = &#34;#0066CC&#34;
 AGENT_REBEL_COLOR = &#34;#CC0000&#34;
+AGENT_DEVIANT_COLOR = &#34;#00FBFF&#34;
 JAIL_COLOR = &#34;#757575&#34;
 BARRICADE_COLOR = &#34;#00FF00&#34;
 
@@ -57,6 +58,8 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == &#34;Quiescent&#34; else AGENT_REBEL_COLOR
         )
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == &#34;Deviant&#34; else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.8
@@ -93,6 +96,15 @@ model_params = {
         min_value=0,
         max_value=1,
         step=0.001,
+        description=&#34;&#34;,
+    ),
+    &#34;jail_capacity&#34;: UserSettableParameter(
+        param_type=&#34;slider&#34;,
+        name=&#34;Jail capacity&#34;,
+        value=50,
+        min_value=0,
+        max_value=1000,
+        step=1,
         description=&#34;&#34;,
     ),
     &#34;environment&#34;: UserSettableParameter(
@@ -135,7 +147,6 @@ model_params = {
     &#34;cop_vision&#34;: 7,
     &#34;legitimacy&#34;: 0.8,
     &#34;max_jail_term&#34;: 1000,
-    &#34;jail_capacity&#34;: 400,
     &#34;barricade&#34;: 50,
     &#34;funmode&#34;: False,  # pew pew pew xD
 }
@@ -165,13 +176,19 @@ class AgentLeftElement(TextElement):
 
 
 chart = ChartModule(
-    [{&#34;Label&#34;: &#34;jailed&#34;, &#34;Color&#34;: &#34;Black&#34;}], data_collector_name=&#34;datacollector&#34;
+    [
+        {&#34;Label&#34;: &#34;Quiescent&#34;, &#34;Color&#34;: AGENT_QUIET_COLOR},
+        {&#34;Label&#34;: &#34;Active&#34;, &#34;Color&#34;: AGENT_REBEL_COLOR},
+        {&#34;Label&#34;: &#34;Jailed&#34;, &#34;Color&#34;: JAIL_COLOR},
+        {&#34;Label&#34;: &#34;Deviant&#34;, &#34;Color&#34;: AGENT_DEVIANT_COLOR},
+    ],
+    data_collector_name=&#34;datacollector&#34;,
 )
 
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,
-    [canvas_element, AgentLeftElement()],
+    [canvas_element, AgentLeftElement(), chart],
     &#34;Protesters vs Police&#34;,
     model_params,
 )</code></pre>
@@ -208,6 +225,8 @@ server = ModularServer(
         color = (
             AGENT_QUIET_COLOR if agent.condition == &#34;Quiescent&#34; else AGENT_REBEL_COLOR
         )
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == &#34;Deviant&#34; else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.8

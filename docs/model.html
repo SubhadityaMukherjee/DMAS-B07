@@ -135,6 +135,7 @@ class ProtestersVsPolice(Model):
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
             &#34;Active&#34;: lambda m: self.count_type_citizens(m, &#34;Active&#34;),
+            &#34;Deviant&#34;: lambda m: self.count_type_citizens(m, &#34;Deviant&#34;),
             &#34;Jailed&#34;: lambda m: self.count_jailed(m),
         }
         agent_reporters = {
@@ -468,6 +469,7 @@ start the model.</p>
         model_reporters = {
             &#34;Quiescent&#34;: lambda m: self.count_type_citizens(m, &#34;Quiescent&#34;),
             &#34;Active&#34;: lambda m: self.count_type_citizens(m, &#34;Active&#34;),
+            &#34;Deviant&#34;: lambda m: self.count_type_citizens(m, &#34;Deviant&#34;),
             &#34;Jailed&#34;: lambda m: self.count_jailed(m),
         }
         agent_reporters = {

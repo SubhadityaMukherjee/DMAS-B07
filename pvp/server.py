@@ -30,8 +30,8 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == "Quiescent" else AGENT_REBEL_COLOR
         )
-        #ADDED THIS LUKE
-        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color ###
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal["Color"] = color
         portrayal["r"] = 0.8
@@ -148,13 +148,19 @@ class AgentLeftElement(TextElement):
 
 
 chart = ChartModule(
-    [{"Label": "jailed", "Color": "Black"}], data_collector_name="datacollector"
+    [
+        {"Label": "Quiescent", "Color": AGENT_QUIET_COLOR},
+        {"Label": "Active", "Color": AGENT_REBEL_COLOR},
+        {"Label": "Jailed", "Color": JAIL_COLOR},
+        {"Label": "Deviant", "Color": AGENT_DEVIANT_COLOR},
+    ],
+    data_collector_name="datacollector",
 )
 
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,
-    [canvas_element, AgentLeftElement()],
+    [canvas_element, AgentLeftElement(), chart],
     "Protesters vs Police",
     model_params,
 )

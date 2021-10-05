@@ -107,6 +107,7 @@ class ProtestersVsPolice(Model):
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
             "Active": lambda m: self.count_type_citizens(m, "Active"),
+            "Deviant": lambda m: self.count_type_citizens(m, "Deviant"),
             "Jailed": lambda m: self.count_jailed(m),
         }
         agent_reporters = {
