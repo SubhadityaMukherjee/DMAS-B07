@@ -106,7 +106,7 @@ def random_strategy(self):  # random distribution
         # rand = np.random.choice([0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb])
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand])
+        grid_adder(self, agent_dict[rand[0]])
 
 
 # %%
