@@ -94,7 +94,7 @@ class Citizen(Agent):
         """
 
         # ADDED THIS LUKE:
-        if self.risk_aversion < 0.1 and self.condition != "Active":
+        if self.risk_aversion < 0.01 and self.condition != "Active":
             self.condition = "Deviant" ##
 
         if self.aggression > 0.3:  # TODO
@@ -111,6 +111,11 @@ class Citizen(Agent):
             self.condition = "Active"
         elif (
             self.condition == "Active"
+            and abs(net_risk - self.arrest_probability) <= self.threshold
+        ):
+            self.condition = "Quiescent"
+        elif (
+            self.condition == "Deviant"
             and abs(net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
