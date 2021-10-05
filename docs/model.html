@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from random import choices
+<pre><code class="python">import os
+from random import choices
 
 from mesa import Model
 from mesa.datacollection import DataCollector
@@ -118,6 +119,7 @@ class ProtestersVsPolice(Model):
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
+        self.exp_name = &#34;experiments/experiment-1.txt&#34;
         self.grid = (
             Grid(height, width, torus=False)
             if self.wrap == &#34;Don&#39;t wrap around&#34;
@@ -189,8 +191,21 @@ class ProtestersVsPolice(Model):
             except:
                 pass
 
+        if self.iteration % 30 == 0:
+            df = self.datacollector.get_model_vars_dataframe()
+            df[&#34;Environment&#34;] = self.environment
+            df[&#34;Ratio&#34;] = self.ratio
+            df[&#34;Direction&#34;] = self.direction_bias
+            df[&#34;Wrap&#34;] = self.wrap
+            df[&#34;Jail Capacity&#34;] = self.jail_capacity
+            df.to_csv(self.experiment_logger(df))
+
         if self.iteration &gt; self.max_iters:
             self.running = False
+
+    def experiment_logger(self, df):
+        count_f = len(os.listdir(&#34;experiments/&#34;)) + 1
+        return f&#34;experiments/exp-{str(count_f)}.csv&#34;
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -452,6 +467,7 @@ start the model.</p>
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
+        self.exp_name = &#34;experiments/experiment-1.txt&#34;
         self.grid = (
             Grid(height, width, torus=False)
             if self.wrap == &#34;Don&#39;t wrap around&#34;
@@ -523,8 +539,21 @@ start the model.</p>
             except:
                 pass
 
+        if self.iteration % 30 == 0:
+            df = self.datacollector.get_model_vars_dataframe()
+            df[&#34;Environment&#34;] = self.environment
+            df[&#34;Ratio&#34;] = self.ratio
+            df[&#34;Direction&#34;] = self.direction_bias
+            df[&#34;Wrap&#34;] = self.wrap
+            df[&#34;Jail Capacity&#34;] = self.jail_capacity
+            df.to_csv(self.experiment_logger(df))
+
         if self.iteration &gt; self.max_iters:
             self.running = False
+
+    def experiment_logger(self, df):
+        count_f = len(os.listdir(&#34;experiments/&#34;)) + 1
+        return f&#34;experiments/exp-{str(count_f)}.csv&#34;
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -607,6 +636,20 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pvp.model.ProtestersVsPolice.experiment_logger"><code class="name flex">
+<span>def <span class="ident">experiment_logger</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def experiment_logger(self, df):
+    count_f = len(os.listdir(&#34;experiments/&#34;)) + 1
+    return f&#34;experiments/exp-{str(count_f)}.csv&#34;</code></pre>
+</details>
+</dd>
 <dt id="pvp.model.ProtestersVsPolice.spawner"><code class="name flex">
 <span>def <span class="ident">spawner</span></span>(<span>self)</span>
 </code></dt>
@@ -661,6 +704,15 @@ def count_type_citizens(model, condition, exclude_jailed=True):
         except:
             pass
 
+    if self.iteration % 30 == 0:
+        df = self.datacollector.get_model_vars_dataframe()
+        df[&#34;Environment&#34;] = self.environment
+        df[&#34;Ratio&#34;] = self.ratio
+        df[&#34;Direction&#34;] = self.direction_bias
+        df[&#34;Wrap&#34;] = self.wrap
+        df[&#34;Jail Capacity&#34;] = self.jail_capacity
+        df.to_csv(self.experiment_logger(df))
+
     if self.iteration &gt; self.max_iters:
         self.running = False</code></pre>
 </details>
@@ -693,6 +745,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
 <ul class="">
 <li><code><a title="pvp.model.ProtestersVsPolice.count_jailed" href="#pvp.model.ProtestersVsPolice.count_jailed">count_jailed</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.count_type_citizens" href="#pvp.model.ProtestersVsPolice.count_type_citizens">count_type_citizens</a></code></li>
+<li><code><a title="pvp.model.ProtestersVsPolice.experiment_logger" href="#pvp.model.ProtestersVsPolice.experiment_logger">experiment_logger</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.spawner" href="#pvp.model.ProtestersVsPolice.spawner">spawner</a></code></li>
 <li><code><a title="pvp.model.ProtestersVsPolice.step" href="#pvp.model.ProtestersVsPolice.step">step</a></code></li>
 </ul>

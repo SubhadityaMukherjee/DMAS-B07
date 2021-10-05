@@ -1,3 +1,4 @@
+import os
 from random import choices
 
 from mesa import Model
@@ -90,6 +91,7 @@ class ProtestersVsPolice(Model):
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
+        self.exp_name = "experiments/experiment-1.txt"
         self.grid = (
             Grid(height, width, torus=False)
             if self.wrap == "Don't wrap around"
@@ -161,8 +163,21 @@ class ProtestersVsPolice(Model):
             except:
                 pass
 
+        if self.iteration % 30 == 0:
+            df = self.datacollector.get_model_vars_dataframe()
+            df["Environment"] = self.environment
+            df["Ratio"] = self.ratio
+            df["Direction"] = self.direction_bias
+            df["Wrap"] = self.wrap
+            df["Jail Capacity"] = self.jail_capacity
+            df.to_csv(self.experiment_logger(df))
+
         if self.iteration > self.max_iters:
             self.running = False
+
+    def experiment_logger(self, df):
+        count_f = len(os.listdir("experiments/")) + 1
+        return f"experiments/exp-{str(count_f)}.csv"
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
