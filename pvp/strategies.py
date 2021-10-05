@@ -10,7 +10,7 @@ from numpy.random.mtrand import normal
 
 from .agents import *
 
-# from random import choices
+from random import choices
 
 
 # %%
@@ -69,7 +69,7 @@ def middle_block(self):  # walk around / block in the middle
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
         if x < x_start or x > x_end or y < y_start or y > y_end:
-            rand = np.random.choice([0, 1, 2], p=[freeProb, citizenProb, copProb])
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
 
 
@@ -102,10 +102,8 @@ def random_strategy(self):  # random distribution
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
-        rand = np.random.choice(
-            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
-        )
+        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = np.random.choice([0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb])
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand])
@@ -161,7 +159,7 @@ def side_strategy(self, side="left", agent="cop"):  # wall of cops
             grid_adder(self, agent_dict[2])
 
         else:
-            rand = np.random.choice([0, 1, 3], p=[freeProb, citizenProb, blockProb])
+            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])
 
 
@@ -210,5 +208,5 @@ def streets(self):
         if x_start > x > x_end and (
             x != x_mid and x != (x_mid + 1) or (y < y_start or y > y_end)
         ):
-            rand = np.random.choice([0, 1, 2], p=[freeProb, citizenProb, copProb])
+            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
