@@ -70,6 +70,15 @@ model_params = {
         step=0.001,
         description="",
     ),
+    "jail_capacity": UserSettableParameter(
+        param_type="slider",
+        name="Jail capacity",
+        value=50,
+        min_value=0,
+        max_value=1000,
+        step=1,
+        description="",
+    ),
     "environment": UserSettableParameter(
         param_type="choice",
         name="Environment",
@@ -110,7 +119,6 @@ model_params = {
     "cop_vision": 7,
     "legitimacy": 0.8,
     "max_jail_term": 1000,
-    "jail_capacity": 400,
     "barricade": 50,
     "funmode": False,  # pew pew pew xD
 }
