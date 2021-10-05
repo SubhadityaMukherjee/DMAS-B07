@@ -1,15 +1,18 @@
 # %%
 from functools import partial
-from random import choices
 
 import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
+from numpy.random.mtrand import normal
 
 from .agents import *
-import numpy as np
+
+# from random import choices
+
+
 # %%
 
 # TODO: randomly distributed cops doesn't fully make sense realistically
@@ -88,7 +91,7 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion= np.random.normal(),
+            risk_aversion=np.random.normal(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -99,10 +102,13 @@ def random_strategy(self):  # random distribution
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        rand = np.random.choice(
+            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
+        )
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand[0]])
+        grid_adder(self, agent_dict[rand])
 
 
 # %%

@@ -28,15 +28,18 @@
 </summary>
 <pre><code class="python"># %%
 from functools import partial
-from random import choices
 
 import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
+from numpy.random.mtrand import normal
 
 from .agents import *
+
+# from random import choices
+
 
 # %%
 
@@ -71,7 +74,7 @@ def middle_block(self):  # walk around / block in the middle
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -116,7 +119,7 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
+            risk_aversion=np.random.normal(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -127,10 +130,13 @@ def random_strategy(self):  # random distribution
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        rand = np.random.choice(
+            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
+        )
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand[0]])
+        grid_adder(self, agent_dict[rand])
 
 
 # %%
@@ -207,58 +213,7 @@ def streets(self):
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
-    citizenProb = (free * self.ratio) / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
-    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = num_blocks / self.numTotalSpaces
-
-    for (_, x, y) in self.grid.coord_iter():
-        self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-            direction_bias=self.direction_bias,
-        )
-        self.x, self.y = x, y
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        if x_start &gt; x &gt; x_end and (
-            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
-        ):
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            grid_adder(self, agent_dict[rand[0]])
-
-
-def circle(self):
-    if self.grid.torus == False:
-        self.grid.torus = True
-    # middle
-    y_start = self.height / 6
-    y_end = self.height - y_start
-    x_mid = self.width / 2
-    # sides
-    x_end = self.width / 6
-    x_start = self.width - x_end
-
-    num_blocks = 0
-    for (_, x, y) in self.grid.coord_iter():
-        if (
-            x &gt;= x_start
-            or x &lt;= x_end
-            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
-        ):
-            self.x, self.y = x, y
-            grid_adder(self, Block(self.unique_id, self, (x, y)))
-            num_blocks += 1
-
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -294,66 +249,6 @@ def circle(self):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pvp.strategies.circle"><code class="name flex">
-<span>def <span class="ident">circle</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def circle(self):
-    if self.grid.torus == False:
-        self.grid.torus = True
-    # middle
-    y_start = self.height / 6
-    y_end = self.height - y_start
-    x_mid = self.width / 2
-    # sides
-    x_end = self.width / 6
-    x_start = self.width - x_end
-
-    num_blocks = 0
-    for (_, x, y) in self.grid.coord_iter():
-        if (
-            x &gt;= x_start
-            or x &lt;= x_end
-            or ((x == x_mid or x == (x_mid + 1)) and y_start &lt;= y &lt;= y_end)
-        ):
-            self.x, self.y = x, y
-            grid_adder(self, Block(self.unique_id, self, (x, y)))
-            num_blocks += 1
-
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
-    citizenProb = (free * self.ratio) / self.numTotalSpaces
-    freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
-    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = num_blocks / self.numTotalSpaces
-
-    for (_, x, y) in self.grid.coord_iter():
-        self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-            direction_bias=self.direction_bias,
-        )
-        self.x, self.y = x, y
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        if x_start &gt; x &gt; x_end and (
-            x != x_mid and x != (x_mid + 1) or (y &lt; y_start or y &gt; y_end)
-        ):
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            grid_adder(self, agent_dict[rand[0]])</code></pre>
-</details>
-</dd>
 <dt id="pvp.strategies.grid_adder"><code class="name flex">
 <span>def <span class="ident">grid_adder</span></span>(<span>self, atype)</span>
 </code></dt>
@@ -394,7 +289,7 @@ def circle(self):
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -420,6 +315,97 @@ def circle(self):
             rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
+</dd>
+<dt id="pvp.strategies.normal"><code class="name flex">
+<span>def <span class="ident">normal</span></span>(<span>loc=0.0, scale=1.0, size=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw random samples from a normal (Gaussian) distribution.</p>
+<p>The probability density function of the normal distribution, first
+derived by De Moivre and 200 years later by both Gauss and Laplace
+independently [2]_, is often called the bell curve because of
+its characteristic shape (see the example below).</p>
+<p>The normal distributions occurs often in nature.
+For example, it
+describes the commonly occurring distribution of samples influenced
+by a large number of tiny, random disturbances, each with its own
+unique distribution [2]_.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <code><a title="pvp.strategies.normal" href="#pvp.strategies.normal">RandomState.normal()</a></code> method of a <code>default_rng()</code>
+instance instead; please see the :ref:<code>random-quick-start</code>.</p>
+</div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>loc</code></strong> :&ensp;<code>float</code> or <code>array_like</code> of <code>floats</code></dt>
+<dd>Mean ("centre") of the distribution.</dd>
+<dt><strong><code>scale</code></strong> :&ensp;<code>float</code> or <code>array_like</code> of <code>floats</code></dt>
+<dd>Standard deviation (spread or "width") of the distribution. Must be
+non-negative.</dd>
+<dt><strong><code>size</code></strong> :&ensp;<code>int</code> or <code>tuple</code> of <code>ints</code>, optional</dt>
+<dd>Output shape.
+If the given shape is, e.g., <code>(m, n, k)</code>, then
+<code>m * n * k</code> samples are drawn.
+If size is <code>None</code> (default),
+a single value is returned if <code>loc</code> and <code>scale</code> are both scalars.
+Otherwise, <code>np.broadcast(loc, scale).size</code> samples are drawn.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>out</code></strong> :&ensp;<code>ndarray</code> or <code>scalar</code></dt>
+<dd>Drawn samples from the parameterized normal distribution.</dd>
+</dl>
+<h2 id="see-also">See Also</h2>
+<dl>
+<dt><code>scipy.stats.norm</code></dt>
+<dd>probability density function, distribution or cumulative density function, etc.</dd>
+<dt><code>Generator.normal</code></dt>
+<dd>which should be used for new code.</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>The probability density for the Gaussian distribution is</p>
+<p>[ e^{ - \frac{ (x - \mu)^2 } {2 \sigma^2} }, ]
+where :math:<code>\mu</code> is the mean and :math:<code>\sigma</code> the standard
+deviation. The square of the standard deviation, :math:<code>\sigma^2</code>,
+is called the variance.</p>
+<p>The function has its peak at the mean, and its "spread" increases with
+the standard deviation (the function reaches 0.607 times its maximum at
+:math:<code>x + \sigma</code> and :math:<code>x - \sigma</code> [2]_).
+This implies that
+normal is more likely to return samples lying close to the mean, rather
+than those far away.</p>
+<h2 id="references">References</h2>
+<p>.. [1] Wikipedia, "Normal distribution",
+<a href="https://en.wikipedia.org/wiki/Normal_distribution">https://en.wikipedia.org/wiki/Normal_distribution</a>
+.. [2] P. R. Peebles Jr., "Central Limit Theorem" in "Probability,
+Random Variables and Random Signal Principles", 4th ed., 2001,
+pp. 51, 51, 125.</p>
+<h2 id="examples">Examples</h2>
+<p>Draw samples from the distribution:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; mu, sigma = 0, 0.1 # mean and standard deviation
+&gt;&gt;&gt; s = np.random.normal(mu, sigma, 1000)
+</code></pre>
+<p>Verify the mean and the variance:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; abs(mu - np.mean(s))
+0.0  # may vary
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; abs(sigma - np.std(s, ddof=1))
+0.1  # may vary
+</code></pre>
+<p>Display the histogram of the samples, along with
+the probability density function:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; import matplotlib.pyplot as plt
+&gt;&gt;&gt; count, bins, ignored = plt.hist(s, 30, density=True)
+&gt;&gt;&gt; plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+...                np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
+...          linewidth=2, color='r')
+&gt;&gt;&gt; plt.show()
+</code></pre>
+<p>Two-by-four array of samples from N(3, 6.25):</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; np.random.normal(3, 2.5, size=(2, 4))
+array([[-4.49401501,  4.00950034, -1.81814867,  7.29718677],   # random
+       [ 0.39924804,  4.68456316,  4.99394529,  4.84057254]])  # random
+</code></pre></div>
 </dd>
 <dt id="pvp.strategies.random_strategy"><code class="name flex">
 <span>def <span class="ident">random_strategy</span></span>(<span>self)</span>
@@ -448,7 +434,7 @@ def circle(self):
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
+            risk_aversion=np.random.normal(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -459,10 +445,13 @@ def circle(self):
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        rand = np.random.choice(
+            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
+        )
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand[0]])</code></pre>
+        grid_adder(self, agent_dict[rand])</code></pre>
 </details>
 </dd>
 <dt id="pvp.strategies.side_strategy"><code class="name flex">
@@ -560,7 +549,7 @@ Reshape back</p></div>
             grid_adder(self, Block(self.unique_id, self, (x, y)))
             num_blocks += 1
 
-    free = (self.numTotalSpaces * self.grid_density) - num_blocks
+    free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
@@ -607,9 +596,9 @@ Reshape back</p></div>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="pvp.strategies.circle" href="#pvp.strategies.circle">circle</a></code></li>
 <li><code><a title="pvp.strategies.grid_adder" href="#pvp.strategies.grid_adder">grid_adder</a></code></li>
 <li><code><a title="pvp.strategies.middle_block" href="#pvp.strategies.middle_block">middle_block</a></code></li>
+<li><code><a title="pvp.strategies.normal" href="#pvp.strategies.normal">normal</a></code></li>
 <li><code><a title="pvp.strategies.random_strategy" href="#pvp.strategies.random_strategy">random_strategy</a></code></li>
 <li><code><a title="pvp.strategies.side_strategy" href="#pvp.strategies.side_strategy">side_strategy</a></code></li>
 <li><code><a title="pvp.strategies.streets" href="#pvp.strategies.streets">streets</a></code></li>

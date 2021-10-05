@@ -32,17 +32,17 @@ class Citizen(Agent):
     """
 
     def __init__(
-            self,
-            unique_id,
-            model,
-            pos,
-            hardship,
-            regime_legitimacy,
-            risk_aversion,
-            threshold,
-            vision,
-            aggression,
-            direction_bias,
+        self,
+        unique_id,
+        model,
+        pos,
+        hardship,
+        regime_legitimacy,
+        risk_aversion,
+        threshold,
+        vision,
+        aggression,
+        direction_bias,
     ):
         """
         Create a new Citizen.
@@ -105,13 +105,13 @@ class Citizen(Agent):
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-                self.condition == "Quiescent"
-                and abs(net_risk - self.arrest_probability) > self.threshold
+            self.condition == "Quiescent"
+            and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
         elif (
-                self.condition == "Active"
-                and abs(net_risk - self.arrest_probability) <= self.threshold
+            self.condition == "Active"
+            and abs(net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
 
@@ -150,11 +150,15 @@ class Citizen(Agent):
 
     def choose_direction(self, possible_moves):
         choices = []
-        if self.direction_bias == "Clockwise" or self.direction_bias == "Anti-clockwise":
-            x_left = (self.model.width / 2) - 5
-            x_right = self.model.width - x_left
-            y_up = (self.model.height / 2) - 5
-            y_down = self.model.height - y_up
+        x_left = (self.model.width / 2) - 5
+        y_up = (self.model.height / 2) - 5
+        x_right = self.model.width - x_left
+        y_down = self.model.height - y_up
+
+        if (
+            self.direction_bias == "Clockwise"
+            or self.direction_bias == "Anti-clockwise"
+        ):
             for x in possible_moves:
                 direction = self.calc_direction(x)
                 if self.pos[0] < x_left and self.pos[1] > y_up:
@@ -178,11 +182,15 @@ class Citizen(Agent):
                     elif self.direction_bias == "Clockwise" and direction == "right":
                         choices.append(x)
         else:
-            choices = [x for x in possible_moves if self.calc_direction(x) == self.direction_bias]
+            choices = [
+                x
+                for x in possible_moves
+                if self.calc_direction(x) == self.direction_bias
+            ]
         if len(choices) != 0:
             return random.choice(choices)
         else:
-            return None  #self.random.choice(possible_moves)
+            return None  # self.random.choice(possible_moves)
 
     def update_neighbors(self):
         """
@@ -206,9 +214,9 @@ class Citizen(Agent):
         actives_in_vision = 1.0  # citizen counts herself
         for c in self.neighbors:
             if (
-                    c.breed == "citizen"
-                    and c.condition == "Active"
-                    and c.jail_sentence == 0
+                c.breed == "citizen"
+                and c.condition == "Active"
+                and c.jail_sentence == 0
             ):
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
