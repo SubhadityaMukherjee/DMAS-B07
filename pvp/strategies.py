@@ -69,7 +69,7 @@ def middle_block(self):  # walk around / block in the middle
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
         if x < x_start or x > x_end or y < y_start or y > y_end:
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            rand = np.random.choice([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
 
 
@@ -161,7 +161,7 @@ def side_strategy(self, side="left", agent="cop"):  # wall of cops
             grid_adder(self, agent_dict[2])
 
         else:
-            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
+            rand = np.random.choice([0, 1, 3], [freeProb, citizenProb, blockProb])
             grid_adder(self, agent_dict[rand[0]])
 
 
@@ -210,5 +210,5 @@ def streets(self):
         if x_start > x > x_end and (
             x != x_mid and x != (x_mid + 1) or (y < y_start or y > y_end)
         ):
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+            rand = np.random.choice([0, 1, 2], [freeProb, citizenProb, copProb])
             grid_adder(self, agent_dict[rand[0]])
