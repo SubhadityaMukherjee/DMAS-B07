@@ -1,5 +1,7 @@
+import os
 from random import choices
 
+import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
@@ -90,6 +92,7 @@ class ProtestersVsPolice(Model):
         self.aggression = self.random.random()
         self.direction_bias = direction_bias
         self.schedule = RandomActivation(self)
+        self.exp_name = "experiments/experiment-1.txt"
         self.grid = (
             Grid(height, width, torus=False)
             if self.wrap == "Don't wrap around"
@@ -103,10 +106,12 @@ class ProtestersVsPolice(Model):
         self.numCops = self.numFreeSpaces - self.numCitizens
         self.barricade = barricade
         self.citizen, self.cop, self.block = None, None, None
+        self.avg_agg = 0
 
         model_reporters = {
             "Quiescent": lambda m: self.count_type_citizens(m, "Quiescent"),
             "Active": lambda m: self.count_type_citizens(m, "Active"),
+            "Deviant": lambda m: self.count_type_citizens(m, "Deviant"),
             "Jailed": lambda m: self.count_jailed(m),
         }
         agent_reporters = {
@@ -154,14 +159,28 @@ class ProtestersVsPolice(Model):
         self.datacollector.collect(self)
 
         self.iteration += 1
+        self.count_avg_agg()
         if self.iteration % 3 == 0 and self.funmode == True:
             try:
                 playsound("pewpew.mp3")
             except:
                 pass
 
+        if self.iteration % 30 == 0:
+            df = self.datacollector.get_model_vars_dataframe()
+            df["Environment"] = self.environment
+            df["Ratio"] = self.ratio
+            df["Direction"] = self.direction_bias
+            df["Wrap"] = self.wrap
+            df["Jail Capacity"] = self.jail_capacity
+            df.to_csv(self.experiment_logger(df))
+
         if self.iteration > self.max_iters:
             self.running = False
+
+    def experiment_logger(self, df):
+        count_f = len(os.listdir("experiments/")) + 1
+        return f"experiments/exp-{str(count_f)}.csv"
 
     @staticmethod
     def count_type_citizens(model, condition, exclude_jailed=True):
@@ -188,3 +207,17 @@ class ProtestersVsPolice(Model):
             if agent.breed == "citizen" and agent.jail_sentence:
                 count += 1
         return count
+
+    def count_avg_agg(self):
+        """
+        Helper method to count avg aggression
+        """
+        count = np.array(
+            [
+                agent.aggression
+                for agent in self.schedule.agents
+                if agent.breed == "citizen"
+                and (agent.condition in ["Active", "Deviant"])
+            ]
+        )
+        self.avg_agg = str(round(np.average(count), 4))

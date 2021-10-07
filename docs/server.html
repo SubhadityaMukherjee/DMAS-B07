@@ -26,7 +26,11 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from mesa.visualization.ModularVisualization import ModularServer
+<pre><code class="python">import argparse
+import re
+
+from mesa.batchrunner import BatchRunner
+from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 
@@ -35,9 +39,14 @@ from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .model import ProtestersVsPolice
 
+# ap = argparse.ArgumentParser(&#34;Protesters Vs Police&#34;)
+# ap.add_argument(&#34;-b&#34;, action=&#39;store_true&#39;,help=&#34;Batch runner&#34;)
+# ags = ap.parse_args()
+
 COP_COLOR = &#34;#000000&#34;
 AGENT_QUIET_COLOR = &#34;#0066CC&#34;
 AGENT_REBEL_COLOR = &#34;#CC0000&#34;
+AGENT_DEVIANT_COLOR = &#34;#00FBFF&#34;
 JAIL_COLOR = &#34;#757575&#34;
 BARRICADE_COLOR = &#34;#00FF00&#34;
 
@@ -57,6 +66,8 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == &#34;Quiescent&#34; else AGENT_REBEL_COLOR
         )
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == &#34;Deviant&#34; else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.8
@@ -93,6 +104,15 @@ model_params = {
         min_value=0,
         max_value=1,
         step=0.001,
+        description=&#34;&#34;,
+    ),
+    &#34;jail_capacity&#34;: UserSettableParameter(
+        param_type=&#34;slider&#34;,
+        name=&#34;Jail capacity&#34;,
+        value=50,
+        min_value=0,
+        max_value=1000,
+        step=1,
         description=&#34;&#34;,
     ),
     &#34;environment&#34;: UserSettableParameter(
@@ -135,7 +155,6 @@ model_params = {
     &#34;cop_vision&#34;: 7,
     &#34;legitimacy&#34;: 0.8,
     &#34;max_jail_term&#34;: 1000,
-    &#34;jail_capacity&#34;: 400,
     &#34;barricade&#34;: 50,
     &#34;funmode&#34;: False,  # pew pew pew xD
 }
@@ -160,18 +179,29 @@ class AgentLeftElement(TextElement):
                 cop += 1
             if agent.breed == &#34;Block&#34;:
                 block += 1
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
         return stats
 
 
 chart = ChartModule(
-    [{&#34;Label&#34;: &#34;jailed&#34;, &#34;Color&#34;: &#34;Black&#34;}], data_collector_name=&#34;datacollector&#34;
+    [
+        {&#34;Label&#34;: &#34;Quiescent&#34;, &#34;Color&#34;: AGENT_QUIET_COLOR},
+        {&#34;Label&#34;: &#34;Active&#34;, &#34;Color&#34;: AGENT_REBEL_COLOR},
+        {&#34;Label&#34;: &#34;Jailed&#34;, &#34;Color&#34;: JAIL_COLOR},
+        {&#34;Label&#34;: &#34;Deviant&#34;, &#34;Color&#34;: AGENT_DEVIANT_COLOR},
+    ],
+    data_collector_name=&#34;datacollector&#34;,
 )
 
+# def batch_run(model):
+# print(ags.b)
+# if ags.b == True:
+#     pass
+# else:
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,
-    [canvas_element, AgentLeftElement()],
+    [canvas_element, AgentLeftElement(), chart],
     &#34;Protesters vs Police&#34;,
     model_params,
 )</code></pre>
@@ -208,6 +238,8 @@ server = ModularServer(
         color = (
             AGENT_QUIET_COLOR if agent.condition == &#34;Quiescent&#34; else AGENT_REBEL_COLOR
         )
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == &#34;Deviant&#34; else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.8
@@ -260,7 +292,7 @@ server = ModularServer(
                 cop += 1
             if agent.breed == &#34;Block&#34;:
                 block += 1
-        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
         return stats</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -297,7 +329,7 @@ server = ModularServer(
             cop += 1
         if agent.breed == &#34;Block&#34;:
             block += 1
-    stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}&#34;&#34;&#34;
+    stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}&#34;&#34;&#34;
     return stats</code></pre>
 </details>
 </dd>

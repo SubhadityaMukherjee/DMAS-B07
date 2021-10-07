@@ -1,3 +1,7 @@
+import argparse
+import re
+
+from mesa.batchrunner import BatchRunner
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import CanvasGrid, ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
@@ -6,6 +10,10 @@ from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
 from .model import ProtestersVsPolice
+
+# ap = argparse.ArgumentParser("Protesters Vs Police")
+# ap.add_argument("-b", action='store_true',help="Batch runner")
+# ags = ap.parse_args()
 
 COP_COLOR = "#000000"
 AGENT_QUIET_COLOR = "#0066CC"
@@ -30,8 +38,8 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == "Quiescent" else AGENT_REBEL_COLOR
         )
-        #ADDED THIS LUKE
-        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color ###
+        # ADDED THIS LUKE
+        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color  ###
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal["Color"] = color
         portrayal["r"] = 0.8
@@ -143,18 +151,29 @@ class AgentLeftElement(TextElement):
                 cop += 1
             if agent.breed == "Block":
                 block += 1
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, \n Number of blocks: {str(block)}, Number of jailed protesters: {str(len(model.arrested_agents))}"""
+
+        stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}"""
         return stats
-#stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, \n Number of blocks: {str(block)}, Number of jailed protesters: {str(len(self.arrested_agents))}"""
 
 chart = ChartModule(
-    [{"Label": "jailed", "Color": "Black"}], data_collector_name="datacollector"
+    [
+        {"Label": "Quiescent", "Color": AGENT_QUIET_COLOR},
+        {"Label": "Active", "Color": AGENT_REBEL_COLOR},
+        {"Label": "Jailed", "Color": JAIL_COLOR},
+        {"Label": "Deviant", "Color": AGENT_DEVIANT_COLOR},
+    ],
+    data_collector_name="datacollector",
 )
 
+# def batch_run(model):
+# print(ags.b)
+# if ags.b == True:
+#     pass
+# else:
 canvas_element = CanvasGrid(citizen_cop_portrayal, 40, 40, 480, 480)
 server = ModularServer(
     ProtestersVsPolice,
-    [canvas_element, AgentLeftElement()],
+    [canvas_element, AgentLeftElement(), chart],
     "Protesters vs Police",
     model_params,
 )

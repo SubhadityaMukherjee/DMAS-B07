@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python"># %%
 from functools import partial
+from random import choices
 
 import numpy as np
 from mesa import Model
@@ -37,9 +38,6 @@ from mesa.time import RandomActivation
 from numpy.random.mtrand import normal
 
 from .agents import *
-
-# from random import choices
-
 
 # %%
 
@@ -62,7 +60,10 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):  # walk around / block in the middle
+def middle_block(self):
+    &#34;&#34;&#34;
+    walk around / block in the middle
+    &#34;&#34;&#34;
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -119,7 +120,8 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=np.random.normal(),
+            # risk_aversion=np.random.normal(),
+            risk_aversion=self.random.random(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -130,13 +132,11 @@ def random_strategy(self):  # random distribution
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
-        rand = np.random.choice(
-            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
-        )
+        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = np.random.choice([0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb])
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand])
+        grid_adder(self, agent_dict[rand[0]])
 
 
 # %%
@@ -272,12 +272,15 @@ def streets(self):
 <span>def <span class="ident">middle_block</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>walk around / block in the middle</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def middle_block(self):  # walk around / block in the middle
+<pre><code class="python">def middle_block(self):
+    &#34;&#34;&#34;
+    walk around / block in the middle
+    &#34;&#34;&#34;
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -434,7 +437,8 @@ array([[-4.49401501,  4.00950034, -1.81814867,  7.29718677],   # random
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            risk_aversion=np.random.normal(),
+            # risk_aversion=np.random.normal(),
+            risk_aversion=self.random.random(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
             vision=self.citizen_vision,
@@ -445,13 +449,11 @@ array([[-4.49401501,  4.00950034, -1.81814867,  7.29718677],   # random
         self.block = Block(self.unique_id, self, (x, y))
 
         self.x, self.y = x, y
-        # rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
-        rand = np.random.choice(
-            [0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb]
-        )
+        rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
+        # rand = np.random.choice([0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb])
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-        grid_adder(self, agent_dict[rand])</code></pre>
+        grid_adder(self, agent_dict[rand[0]])</code></pre>
 </details>
 </dd>
 <dt id="pvp.strategies.side_strategy"><code class="name flex">

@@ -96,7 +96,7 @@ class Citizen(Agent):
 
         # ADDED THIS LUKE:
         if self.risk_aversion < 0.01 and self.condition != "Active":
-            self.condition = "Deviant" ##
+            self.condition = "Deviant"  ##
 
         if self.aggression > 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2

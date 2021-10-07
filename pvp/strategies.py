@@ -1,5 +1,6 @@
 # %%
 from functools import partial
+from random import choices
 
 import numpy as np
 from mesa import Model
@@ -9,9 +10,6 @@ from mesa.time import RandomActivation
 from numpy.random.mtrand import normal
 
 from .agents import *
-
-from random import choices
-
 
 # %%
 
@@ -34,7 +32,10 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):  # walk around / block in the middle
+def middle_block(self):
+    """
+    walk around / block in the middle
+    """
     x_start = self.width / 3
     y_start = self.height / 3
     x_end = self.width - x_start
@@ -91,7 +92,7 @@ def random_strategy(self):  # random distribution
             (x, y),
             hardship=self.random.random(),
             regime_legitimacy=self.legitimacy,
-            #risk_aversion=np.random.normal(),
+            # risk_aversion=np.random.normal(),
             risk_aversion=self.random.random(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
