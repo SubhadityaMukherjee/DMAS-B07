@@ -163,7 +163,9 @@ class ProtestersVsPolice(Model):
         if self.environment == &#34;Random distribution&#34;:
             random_strategy(self)
         elif self.environment == &#34;Block in the middle&#34;:
-            middle_block(self)
+            middle_block(self, typea=&#34;block&#34;)
+        elif self.environment == &#34;Cops in the middle&#34;:
+            middle_block(self, typea=&#34;cop&#34;)
         elif self.environment == &#34;Wall of cops&#34;:
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
@@ -527,7 +529,9 @@ start the model.</p>
         if self.environment == &#34;Random distribution&#34;:
             random_strategy(self)
         elif self.environment == &#34;Block in the middle&#34;:
-            middle_block(self)
+            middle_block(self, typea=&#34;block&#34;)
+        elif self.environment == &#34;Cops in the middle&#34;:
+            middle_block(self, typea=&#34;cop&#34;)
         elif self.environment == &#34;Wall of cops&#34;:
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
@@ -721,7 +725,9 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     if self.environment == &#34;Random distribution&#34;:
         random_strategy(self)
     elif self.environment == &#34;Block in the middle&#34;:
-        middle_block(self)
+        middle_block(self, typea=&#34;block&#34;)
+    elif self.environment == &#34;Cops in the middle&#34;:
+        middle_block(self, typea=&#34;cop&#34;)
     elif self.environment == &#34;Wall of cops&#34;:
         side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
     elif self.environment == &#34;Street&#34;:

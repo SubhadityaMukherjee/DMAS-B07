@@ -32,7 +32,7 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):
+def middle_block(self, typea="block"):
     """
     walk around / block in the middle
     """
@@ -44,7 +44,7 @@ def middle_block(self):
     for (_, x, y) in self.grid.coord_iter():
         if x_start <= x <= x_end and y_start <= y <= y_end:
             self.x, self.y = x, y
-            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
             num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
@@ -69,9 +69,14 @@ def middle_block(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
         if x < x_start or x > x_end or y < y_start or y > y_end:
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            grid_adder(self, agent_dict[rand[0]])
+            if typea == "block":
+                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                grid_adder(self, agent_dict[rand[0]])
+            elif typea == "cop":
+                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                grid_adder(self, agent_dict_d[rand[0]])
 
 
 def random_strategy(self):  # random distribution

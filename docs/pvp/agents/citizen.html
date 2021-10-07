@@ -100,6 +100,7 @@ class Citizen(Agent):
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
+        self.is_jailed = False
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
@@ -121,9 +122,8 @@ class Citizen(Agent):
             return  # no other changes or movements if agent is in jail.
         &#34;&#34;&#34;
 
-        # ADDED THIS LUKE:
         if self.risk_aversion &lt; 0.01 and self.condition != &#34;Active&#34;:
-            self.condition = &#34;Deviant&#34;  ##
+            self.condition = &#34;Deviant&#34;
 
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
@@ -133,7 +133,8 @@ class Citizen(Agent):
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            self.condition == &#34;Quiescent&#34;
+            # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
+            self.condition == &#34;Quiescent&#34;  # or self.condition == &#34;Deviant&#34;
             and abs(net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
@@ -399,6 +400,7 @@ agent can inspect. Exogenous.</dd>
         self.condition = &#34;Quiescent&#34;
         self.vision = vision
         self.jail_sentence = 0
+        self.is_jailed = False
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
@@ -420,9 +422,8 @@ agent can inspect. Exogenous.</dd>
             return  # no other changes or movements if agent is in jail.
         &#34;&#34;&#34;
 
-        # ADDED THIS LUKE:
         if self.risk_aversion &lt; 0.01 and self.condition != &#34;Active&#34;:
-            self.condition = &#34;Deviant&#34;  ##
+            self.condition = &#34;Deviant&#34;
 
         if self.aggression &gt; 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
@@ -432,7 +433,8 @@ agent can inspect. Exogenous.</dd>
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            self.condition == &#34;Quiescent&#34;
+            # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
+            self.condition == &#34;Quiescent&#34;  # or self.condition == &#34;Deviant&#34;
             and abs(net_risk - self.arrest_probability) &gt; self.threshold
         ):
             self.condition = &#34;Active&#34;
@@ -661,9 +663,8 @@ agent can inspect. Exogenous.</dd>
         return  # no other changes or movements if agent is in jail.
     &#34;&#34;&#34;
 
-    # ADDED THIS LUKE:
     if self.risk_aversion &lt; 0.01 and self.condition != &#34;Active&#34;:
-        self.condition = &#34;Deviant&#34;  ##
+        self.condition = &#34;Deviant&#34;
 
     if self.aggression &gt; 0.3:  # TODO
         self.risk_aversion = self.risk_aversion / 2
@@ -673,7 +674,8 @@ agent can inspect. Exogenous.</dd>
 
     net_risk = self.risk_aversion * self.arrest_probability
     if (
-        self.condition == &#34;Quiescent&#34;
+        # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
+        self.condition == &#34;Quiescent&#34;  # or self.condition == &#34;Deviant&#34;
         and abs(net_risk - self.arrest_probability) &gt; self.threshold
     ):
         self.condition = &#34;Active&#34;

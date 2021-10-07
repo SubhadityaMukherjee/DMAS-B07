@@ -60,7 +60,7 @@ def grid_adder(self, atype):
         self.schedule.add(atype)
 
 
-def middle_block(self):
+def middle_block(self, typea=&#34;block&#34;):
     &#34;&#34;&#34;
     walk around / block in the middle
     &#34;&#34;&#34;
@@ -72,7 +72,7 @@ def middle_block(self):
     for (_, x, y) in self.grid.coord_iter():
         if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
             self.x, self.y = x, y
-            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
             num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
@@ -97,9 +97,14 @@ def middle_block(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
         if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            grid_adder(self, agent_dict[rand[0]])
+            if typea == &#34;block&#34;:
+                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                grid_adder(self, agent_dict[rand[0]])
+            elif typea == &#34;cop&#34;:
+                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                grid_adder(self, agent_dict_d[rand[0]])
 
 
 def random_strategy(self):  # random distribution
@@ -269,7 +274,7 @@ def streets(self):
 </details>
 </dd>
 <dt id="pvp.strategies.middle_block"><code class="name flex">
-<span>def <span class="ident">middle_block</span></span>(<span>self)</span>
+<span>def <span class="ident">middle_block</span></span>(<span>self, typea='block')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>walk around / block in the middle</p></div>
@@ -277,7 +282,7 @@ def streets(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def middle_block(self):
+<pre><code class="python">def middle_block(self, typea=&#34;block&#34;):
     &#34;&#34;&#34;
     walk around / block in the middle
     &#34;&#34;&#34;
@@ -289,7 +294,7 @@ def streets(self):
     for (_, x, y) in self.grid.coord_iter():
         if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
             self.x, self.y = x, y
-            grid_adder(self, Block(self.unique_id, self, (x, y)))
+            grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
             num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
@@ -314,9 +319,14 @@ def streets(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
         if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
-            rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
-            grid_adder(self, agent_dict[rand[0]])</code></pre>
+            if typea == &#34;block&#34;:
+                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                grid_adder(self, agent_dict[rand[0]])
+            elif typea == &#34;cop&#34;:
+                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                grid_adder(self, agent_dict_d[rand[0]])</code></pre>
 </details>
 </dd>
 <dt id="pvp.strategies.normal"><code class="name flex">

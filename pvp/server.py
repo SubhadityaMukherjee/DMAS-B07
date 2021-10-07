@@ -93,7 +93,7 @@ model_params = {
         choices=[
             "Random distribution",
             "Block in the middle",
-            "Wall of cops",
+            "Cops in the middle" "Wall of cops",
             "Street",
         ],
         description="",
@@ -153,6 +153,7 @@ class AgentLeftElement(TextElement):
 
         stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}"""
         return stats
+
 
 chart = ChartModule(
     [

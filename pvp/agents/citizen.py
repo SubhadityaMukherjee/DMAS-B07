@@ -106,7 +106,7 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
-            self.condition == "Quiescent" # or self.condition == "Deviant"
+            self.condition == "Quiescent"  # or self.condition == "Deviant"
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
