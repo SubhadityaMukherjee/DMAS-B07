@@ -93,9 +93,8 @@ class Citizen(Agent):
             return  # no other changes or movements if agent is in jail.
         """
 
-        # ADDED THIS LUKE:
         if self.risk_aversion < 0.01 and self.condition != "Active":
-            self.condition = "Deviant"  ##
+            self.condition = "Deviant"
 
         if self.aggression > 0.3:  # TODO
             self.risk_aversion = self.risk_aversion / 2
@@ -105,7 +104,8 @@ class Citizen(Agent):
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            self.condition == "Quiescent"
+            # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
+            self.condition == "Quiescent" # or self.condition == "Deviant"
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"

@@ -38,8 +38,7 @@ def citizen_cop_portrayal(agent):
         color = (
             AGENT_QUIET_COLOR if agent.condition == "Quiescent" else AGENT_REBEL_COLOR
         )
-        # ADDED THIS LUKE
-        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color  ###
+        color = AGENT_DEVIANT_COLOR if agent.condition == "Deviant" else color
         color = JAIL_COLOR if agent.jail_sentence else color
         portrayal["Color"] = color
         portrayal["r"] = 0.8
