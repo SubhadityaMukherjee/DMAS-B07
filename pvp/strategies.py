@@ -115,6 +115,66 @@ def random_strategy(self):  # random distribution
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
 
+def cluster_strategy(self):  # grouped distribution
+    """
+    Places objects in clusters, except barricades
+    """
+    for bar in range(self.barricade):
+        x = self.random.randrange(self.width)
+        y = self.random.randrange(self.height)
+        coord = (x,y)
+        while not self.grid.is_cell_empty(coord):
+            x = self.random.randrange(self.width)
+            y = self.random.randrange(self.height)
+            coord = (x,y)
+
+        self.block = Block(self.unique_id, self, (x, y))
+        self.x, self.y = x, y
+
+        grid_adder(self, self.block)
+
+
+    citizenClusterStart = int(self.numCitizens // 5)
+    for cit in range(citizenClusterStart):
+        x = self.random.randrange(self.width)
+        y = self.random.randrange(self.height)
+        coord = (x,y)
+        while not self.grid.is_cell_empty(coord):
+            x = self.random.randrange(self.width)
+            y = self.random.randrange(self.height)
+            coord = (x,y)
+
+        
+        self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+        )
+        self.x, self.y = x, y
+
+        grid_adder(self, self.citizen)
+
+
+    copClusterStart = int(self.numCops // 5)
+    for cop in range(copClusterStart):
+        x = self.random.randrange(self.width)
+        y = self.random.randrange(self.height)
+        coord = (x,y)
+        while not self.grid.is_cell_empty(coord):
+            x = self.random.randrange(self.width)
+            y = self.random.randrange(self.height)
+            coord = (x,y)
+        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        self.x, self.y = x, y
+        grid_adder(self, self.cop)
+
 
 # %%
 def side_strategy(self, side="left", agent="cop"):  # wall of cops
