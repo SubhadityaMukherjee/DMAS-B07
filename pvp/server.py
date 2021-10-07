@@ -128,13 +128,13 @@ model_params = {
     "legitimacy": 0.8,
     "max_jail_term": 1000,
     "barricade": 50,
-    "funmode": False,  # pew pew pew xD
+    "funmode": False,  # Set to True for sound effects
 }
 
 
 class AgentLeftElement(TextElement):
     """
-    Display a text count of how many happy agents there are.
+    Display a text count of how many agents there are.
     """
 
     def __init__(self):
@@ -152,7 +152,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == "Block":
                 block += 1
 
-        stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, #jailed protesters: {str(len(model.arrested_agents))}"""
+        stats = f"""Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.arrested_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}""" #FIXME New lines somehow don't work?
         return stats
 
 
