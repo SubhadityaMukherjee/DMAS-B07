@@ -32,9 +32,9 @@ class Cop(Agent):
         # TODO: see if they can disappear if not then freeze
         # TODO: make cops disappear for awhile when arresting - yes
         # TODO: change colour while arresting and away
-        self.arresting = False  # TODO: make cops disappear for awhile when arresting
+        self.can_arrest = True  # TODO: make cops disappear for awhile when arresting
         self.arrested_step = 0
-        self.wait_for = 40  # no of steps to wait before arresting someone else
+        self.wait_for = 0  # no of steps to wait before arresting someone else
 
     def step(self):
         """
@@ -42,42 +42,40 @@ class Cop(Agent):
         applicable.
         """
         self.update_neighbors()
-        active_neighbors = []
-        deviant_neighbors = []
-        cop_neighbors = []
+        active_neighbors, deviant_neighbors, cop_neighbors = [], [], []
         for agent in self.neighbors:
             if agent.breed == "citizen" and agent.condition == "Active" and agent.jail_sentence == 0:
                 active_neighbors.append(agent)
             if agent.breed == "cop":
-                cop_neighbors.append(agent)
+                cop_neighbors.append(agent)  # TODO: have multiple cops per person to arrest? try grouping cops together
             if agent.breed == "citizen" and agent.condition == "Deviant":
                 deviant_neighbors.append(agent)
-        # TODO: have multiple cops per person to arrest? try grouping cops together
+
         # TODO: make it slightly less likely to arrest ? seems too simple rn
 
-        if not self.arresting and (self.model.iteration - self.arrested_step <= self.wait_for):
-            self.arresting = True
-
-        if deviant_neighbors and self.model.jail_capacity > len(self.model.jailed_agents):
+        if (self.can_arrest and deviant_neighbors and self.model.jail_capacity > len(self.model.jailed_agents)
+                and len(cop_neighbors) > 1):
             arrestee = self.random.choice(deviant_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)
+            sentence = self.random.randint(0, self.model.max_jail_term)  # TODO: change to boolean in citizen
             arrestee.jail_sentence = sentence
-            self.model.jailed += 1
             self.model.arrested_agents.append(arrestee)
-            self.arresting = False
-            self.arrested_step = self.model.iteration
-        elif (
-            active_neighbors
-            and self.model.jail_capacity > len(self.model.jailed_agents)
-            and self.arresting and len(cop_neighbors) > 1
-        ):  # TODO : check this once
+            self.can_arrest = False
+            self.wait_for = 15
+
+        elif (self.can_arrest and active_neighbors and self.model.jail_capacity > len(self.model.jailed_agents)
+              and len(cop_neighbors) > 1):
             arrestee = self.random.choice(active_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)
+            sentence = self.random.randint(0, self.model.max_jail_term)  # TODO: change to boolean in citizen
             arrestee.jail_sentence = sentence
-            self.model.jailed += 1
             self.model.arrested_agents.append(arrestee)
-            self.arresting = False
-            self.arrested_step = self.model.iteration
+            self.can_arrest = False
+            self.wait_for = 15
+
+        # check whether they can arrest again
+        if not self.can_arrest and self.wait_for == 0:
+            self.can_arrest = True
+        else:
+            self.wait_for -= 1
 
         if self.model.movement and self.empty_neighbors:
             useful_move = self.move_towards_actives()

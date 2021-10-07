@@ -84,7 +84,6 @@ class ProtestersVsPolice(Model):
         self.movement = movement
         self.jailed_agents = []
         self.arrested_agents = []
-        self.jailed = 0
         self.test = 0
         self.wrap = wrap
         self.max_iters = max_iters

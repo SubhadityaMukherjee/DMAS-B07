@@ -152,7 +152,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == "Block":
                 block += 1
 
-        stats = f"""Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.arrested_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}""" #FIXME New lines somehow don't work?
+        stats = f"""Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}""" #FIXME New lines somehow don't work?
         return stats
 
 
