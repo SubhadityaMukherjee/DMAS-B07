@@ -152,7 +152,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == "Block":
                 block += 1
 
-        stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}"""
+        stats = f"""#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, #jailed protesters: {str(len(model.arrested_agents))}"""
         return stats
 
 
