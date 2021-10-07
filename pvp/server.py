@@ -143,9 +143,9 @@ class AgentLeftElement(TextElement):
                 cop += 1
             if agent.breed == "Block":
                 block += 1
-        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, Number of blocks: {str(block)}"""
+        stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, \n Number of blocks: {str(block)}, Number of jailed protesters: {str(len(model.arrested_agents))}"""
         return stats
-
+#stats = f"""Number of citizens: {str(citizen)}, Number of cops: {str(cop)}, \n Number of blocks: {str(block)}, Number of jailed protesters: {str(len(self.arrested_agents))}"""
 
 chart = ChartModule(
     [{"Label": "jailed", "Color": "Black"}], data_collector_name="datacollector"

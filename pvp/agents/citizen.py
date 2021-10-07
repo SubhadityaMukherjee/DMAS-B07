@@ -72,6 +72,7 @@ class Citizen(Agent):
         self.condition = "Quiescent"
         self.vision = vision
         self.jail_sentence = 0
+        self.is_jailed = False
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
