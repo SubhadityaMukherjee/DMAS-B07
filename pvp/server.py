@@ -93,7 +93,8 @@ model_params = {
         choices=[
             "Random distribution",
             "Block in the middle",
-            "Cops in the middle" "Wall of cops",
+            "Cops in the middle",
+            "Wall of cops",
             "Street",
         ],
         description="",
