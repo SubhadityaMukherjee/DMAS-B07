@@ -44,7 +44,10 @@ def middle_block(self, typea="block"):
     for (_, x, y) in self.grid.coord_iter():
         if x_start <= x <= x_end and y_start <= y <= y_end:
             self.x, self.y = x, y
-            grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
+            if typea == "block":
+                grid_adder(self, Block(self.unique_id, self, (x, y)))
+            elif typea == "cop":
+                grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
             num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
@@ -68,6 +71,7 @@ def middle_block(self, typea="block"):
         )
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        self.block = Block(self.unique_id, self, (x, y))
         agent_dict = {0: None, 1: self.citizen, 2: self.cop}
         agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
         if x < x_start or x > x_end or y < y_start or y > y_end:

@@ -10,7 +10,7 @@ from mesa.time import RandomActivation
 from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
-from .strategies import *
+from .environments import *
 
 try:
     from playsound import playsound
