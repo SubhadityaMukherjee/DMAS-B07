@@ -44,33 +44,35 @@ class Cop(Agent):
         self.update_neighbors()
         active_neighbors, deviant_neighbors, cop_neighbors = [], [], []
         for agent in self.neighbors:
-            if agent.breed == "citizen" and agent.condition == "Active" and agent.jail_sentence == 0:
+            if agent.breed == "citizen" and agent.condition == "Active" and not agent.jail_sentence:
                 active_neighbors.append(agent)
             if agent.breed == "cop":
                 cop_neighbors.append(agent)  # TODO: have multiple cops per person to arrest? try grouping cops together
-            if agent.breed == "citizen" and agent.condition == "Deviant":
+            if agent.breed == "citizen" and agent.condition == "Deviant" and not agent.jail_sentence:
                 deviant_neighbors.append(agent)
 
         # TODO: make it slightly less likely to arrest ? seems too simple rn
         # T# TODO: in citizen maybe add a counter for number of steps citizen is active/deviant to determine if cop should arrest?ODO: in citizen maybe add a counter for number of steps citizen is active/deviant to determine if cop should arrest?
 
-        if (self.can_arrest and deviant_neighbors and self.model.jail_capacity > len(self.model.jailed_agents)
-                and len(cop_neighbors) > 1):
-            arrestee = self.random.choice(deviant_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)  # TODO: change to boolean in citizen
-            arrestee.jail_sentence = sentence
-            self.model.arrested_agents.append(arrestee)
-            self.can_arrest = False
-            self.wait_for = 15
-
-        elif (self.can_arrest and active_neighbors and self.model.jail_capacity > len(self.model.jailed_agents)
-              and len(cop_neighbors) > 1):
-            arrestee = self.random.choice(active_neighbors)
-            sentence = self.random.randint(0, self.model.max_jail_term)  # TODO: change to boolean in citizen
-            arrestee.jail_sentence = sentence
-            self.model.arrested_agents.append(arrestee)
-            self.can_arrest = False
-            self.wait_for = 15
+        if self.can_arrest and self.model.jail_capacity > len(self.model.jailed_agents) and len(cop_neighbors) > 1:
+            arrestee = None
+            if deviant_neighbors:
+                possibles = []
+                for agent in deviant_neighbors:
+                    if agent.steps_active >= 3:
+                        possibles.append(agent)
+                arrestee = self.random.choice(possibles) if possibles else None
+            elif active_neighbors:
+                possibles = []
+                for agent in active_neighbors:
+                    if agent.steps_active >= 3:
+                        possibles.append(agent)
+                arrestee = self.random.choice(possibles) if possibles else None
+            if arrestee:
+                arrestee.jail_sentence = True
+                self.model.arrested_agents.append(arrestee)
+                self.can_arrest = False
+                self.wait_for = 15
 
         # check whether they can arrest again
         if not self.can_arrest and self.wait_for == 0:

@@ -71,8 +71,8 @@ class Citizen(Agent):
         self.direction_bias = direction_bias
         self.condition = "Quiescent"
         self.vision = vision
-        self.jail_sentence = 0
-        self.is_jailed = False
+        self.jail_sentence = False
+        self.steps_active = 0
         self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
@@ -83,10 +83,10 @@ class Citizen(Agent):
         """
         Decide whether to activate, then move if applicable.
         """
-        if self.jail_sentence:
+        '''if self.jail_sentence:
             self.jail_sentence -= 1
             return  # no other changes or movements if agent is in jail.
-
+        '''
         # TODO: random variable to create deviant behaviour
         """if self.jail_sentence:
             # self.jail_sentence -= 1
@@ -141,6 +141,11 @@ class Citizen(Agent):
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
                 self.model.grid.move_agent(self, new_pos)
+
+        if self.condition == "Active" or self.condition == "Deviant":
+            self.steps_active += 1
+        elif self.condition == "Quiescent":
+            self.steps_active = 0
 
     def calc_direction(self, new_pos):
         if new_pos[1] < self.pos[1] and new_pos[0] == self.pos[0]:
@@ -222,8 +227,8 @@ class Citizen(Agent):
             if (
                 c.breed == "citizen"
                 and c.condition == "Active"
-                and c.jail_sentence == 0
-            ):
+                and not c.jail_sentence
+            ):  # c.jail_sentence == 0
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
