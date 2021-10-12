@@ -29,10 +29,7 @@ class Cop(Agent):
         self.breed = "cop"
         self.pos = pos
         self.vision = vision
-        # TODO: see if they can disappear if not then freeze
-        # TODO: make cops disappear for awhile when arresting - yes
-        # TODO: change colour while arresting and away
-        self.can_arrest = True  # TODO: make cops disappear for awhile when arresting
+        self.can_arrest = True
         self.arrested_step = 0
         self.wait_for = 0  # no of steps to wait before arresting someone else
 
@@ -47,19 +44,16 @@ class Cop(Agent):
             if agent.breed == "citizen" and agent.condition == "Active" and not agent.jail_sentence:
                 active_neighbors.append(agent)
             if agent.breed == "cop":
-                cop_neighbors.append(agent)  # TODO: have multiple cops per person to arrest? try grouping cops together
+                cop_neighbors.append(agent)
             if agent.breed == "citizen" and agent.condition == "Deviant" and not agent.jail_sentence:
                 deviant_neighbors.append(agent)
-
-        # TODO: make it slightly less likely to arrest ? seems too simple rn
-        # T# TODO: in citizen maybe add a counter for number of steps citizen is active/deviant to determine if cop should arrest?ODO: in citizen maybe add a counter for number of steps citizen is active/deviant to determine if cop should arrest?
 
         if self.can_arrest and self.model.jail_capacity > len(self.model.jailed_agents) and len(cop_neighbors) > 1:
             arrestee = None
             if deviant_neighbors:
                 possibles = []
                 for agent in deviant_neighbors:
-                    if agent.steps_active >= 3:
+                    if agent.steps_active >= 3:  # TODO: decide on a threshold
                         possibles.append(agent)
                 arrestee = self.random.choice(possibles) if possibles else None
             elif active_neighbors:

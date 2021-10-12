@@ -13,8 +13,6 @@ from .agents import *
 
 # %%
 
-# TODO: randomly distributed cops doesn't fully make sense realistically
-
 """
 Refactor random adder to work with parts of the grid 
 Add ability to spawn based on values (aka iterate over grid, pick preallocated values and spawn there)

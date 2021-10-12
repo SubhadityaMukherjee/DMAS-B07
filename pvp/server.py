@@ -16,6 +16,7 @@ from .model import ProtestersVsPolice
 # ags = ap.parse_args()
 
 COP_COLOR = "#000000"
+COP_ARRESTING_COLOR = '#fcba03'
 AGENT_QUIET_COLOR = "#0066CC"
 AGENT_REBEL_COLOR = "#CC0000"
 AGENT_DEVIANT_COLOR = "#00FBFF"
@@ -52,7 +53,8 @@ def citizen_cop_portrayal(agent):
         portrayal["Layer"] = 0
 
     elif type(agent) is Cop:
-        portrayal["Color"] = COP_COLOR
+        color = COP_COLOR if agent.can_arrest else COP_ARRESTING_COLOR
+        portrayal["Color"] = color
         portrayal["r"] = 0.5
         portrayal["Layer"] = 1
     return portrayal
