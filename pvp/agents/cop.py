@@ -38,6 +38,12 @@ class Cop(Agent):
         Inspect local vision and arrest a random active agent. Move if
         applicable.
         """
+        # check whether they can arrest again
+        if not self.can_arrest and self.wait_for == 0:
+            self.can_arrest = True
+        else:
+            self.wait_for -= 1
+
         self.update_neighbors()
         active_neighbors, deviant_neighbors, cop_neighbors = [], [], []
         for agent in self.neighbors:
@@ -68,13 +74,7 @@ class Cop(Agent):
                 self.can_arrest = False
                 self.wait_for = 15
 
-        # check whether they can arrest again
-        if not self.can_arrest and self.wait_for == 0:
-            self.can_arrest = True
-        else:
-            self.wait_for -= 1
-
-        if self.model.movement and self.empty_neighbors:
+        if self.model.movement and self.empty_neighbors and self.can_arrest:
             useful_move = self.move_towards_actives()
             if useful_move:
                 self.model.grid.move_agent(self, useful_move)
@@ -111,7 +111,7 @@ class Cop(Agent):
                 new_pos.append("down")
             elif toward[1] < self.pos[1] and self.model.grid.is_cell_empty(dict["up"]):  # citizen is further up than cop
                 new_pos.append("up")
-        new_pos = dict[random.choice(new_pos)]  if new_pos else None
+        new_pos = dict[random.choice(new_pos)] if new_pos else None
         return new_pos
 
     def update_neighbors(self):
