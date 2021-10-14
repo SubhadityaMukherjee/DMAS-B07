@@ -94,19 +94,20 @@ class Citizen(Agent):
             return  # no other changes or movements if agent is in jail.
         """
 
-        if self.risk_aversion < 0.01 and self.condition != "Active":
+        if self.risk_aversion < 0.05 :#and self.condition != "Active":
             self.condition = "Deviant"
 
-        if self.aggression > 0.3:  # TODO
-            self.risk_aversion = self.risk_aversion / 2
+        #if self.aggression > 0.3:  # TODO
+        #    self.risk_aversion = self.risk_aversion / 2
 
         self.update_neighbors()
         self.update_estimated_arrest_probability()
+        self.update_agression_threshold_after_arrest()
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
-            self.condition == "Quiescent"  # or self.condition == "Deviant"
+            self.condition == "Quiescent" #or self.condition == "Deviant" #turning this on shows some really interesting behaviour
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
@@ -233,3 +234,23 @@ class Citizen(Agent):
         self.arrest_probability = 1 - math.exp(
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
         )
+
+    def update_agression_threshold_after_arrest(self):
+        """
+        makes the protesters get more easily aggressive if another agent is arrested in their
+        neighbourhood. Not completely sure if it makes sense as it makes the average aggression
+        lower as agents with lower aggression will just start joining in with the fight
+
+        """
+        cops_in_vision = len([c for c in self.neighbors if c.breed == "cop"])
+        arrestees_in_vision = 0  # citizen counts herself
+        for c in self.neighbors:
+            if (
+                c.breed == "citizen"
+                and c.condition != "Quiescent"
+                and not c.jail_sentence
+            ):  # c.jail_sentence == 0
+                arrestees_in_vision += 1
+        if (arrestees_in_vision > 0):
+            self.threshold /= 2 #need to tweak this parameter
+            print(arrestees_in_vision)
