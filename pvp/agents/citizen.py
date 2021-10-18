@@ -242,9 +242,11 @@ class Citizen(Agent):
         lower as agents with lower aggression will just start joining in with the fight
 
         """
-        cops_in_vision = len([c for c in self.neighbors if c.breed == "cop"])
+        # now checks the vision for the neighbors
+        neighbors = self.model.grid.get_cell_list_contents(self.model.grid.get_neighborhood(self.pos, moore=False, radius=self.vision)
+        cops_in_vision = len([c for c in neighbors if c.breed == "cop"])
         arrestees_in_vision = 0  # citizen counts herself
-        for c in self.neighbors:
+        for c in neighbors:
             if (
                 c.breed == "citizen"
                 and c.condition != "Quiescent"
