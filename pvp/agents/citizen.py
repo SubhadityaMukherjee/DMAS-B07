@@ -235,6 +235,7 @@ class Citizen(Agent):
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
         )
 
+    #TODO make neighbours within vision rather than immediate neighbours.
     def update_agression_threshold_after_arrest(self):
         """
         makes the protesters get more easily aggressive if another agent is arrested in their
@@ -243,14 +244,14 @@ class Citizen(Agent):
 
         """
         # now checks the vision for the neighbors
-        neighbors = self.model.grid.get_cell_list_contents(self.model.grid.get_neighborhood(self.pos, moore=False, radius=self.vision)
+        neighbors = self.model.grid.get_cell_list_contents(self.model.grid.get_neighborhood(self.pos, moore=False, radius=self.vision))
         cops_in_vision = len([c for c in neighbors if c.breed == "cop"])
         arrestees_in_vision = 0  # citizen counts herself
         for c in neighbors:
             if (
                 c.breed == "citizen"
-                and c.condition != "Quiescent"
-                and not c.jail_sentence
+                and c.condition == "Deviant"
+                and c.jail_sentence
             ):  # c.jail_sentence == 0
                 arrestees_in_vision += 1
         if (arrestees_in_vision > 0):
