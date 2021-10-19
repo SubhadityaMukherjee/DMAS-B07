@@ -137,6 +137,7 @@ def cluster_strategy(self):  # grouped distribution
 
 
     citizenClusterStart = int(self.numCitizens // 5)
+    citizensLeft = self.numCitizens - citizenClusterStart
     for cit in range(citizenClusterStart):
         x = self.random.randrange(self.width)
         y = self.random.randrange(self.height)
@@ -145,8 +146,6 @@ def cluster_strategy(self):  # grouped distribution
             x = self.random.randrange(self.width)
             y = self.random.randrange(self.height)
             coord = (x,y)
-
-        
         self.citizen = Citizen(
             self.unique_id,
             self,
@@ -165,6 +164,7 @@ def cluster_strategy(self):  # grouped distribution
 
 
     copClusterStart = int(self.numCops // 5)
+    copsLeft = self.numCops - copClusterStart
     for cop in range(copClusterStart):
         x = self.random.randrange(self.width)
         y = self.random.randrange(self.height)
@@ -176,6 +176,43 @@ def cluster_strategy(self):  # grouped distribution
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.x, self.y = x, y
         grid_adder(self, self.cop)
+
+
+    for agent in range(int(copsLeft + citizensLeft)):
+        x = self.random.randrange(self.width)
+        y = self.random.randrange(self.height)
+        coord = (x,y)
+        while not self.grid.is_cell_empty(coord):
+            x = self.random.randrange(self.width)
+            y = self.random.randrange(self.height)
+            coord = (x,y)
+
+        self.neighborhood = self.grid.get_neighborhood(
+            coord, moore=False, radius=1
+        )
+        self.neighbors = self.grid.get_cell_list_contents(self.neighborhood)
+        cops_in_neighborhood = len([c for c in self.neighbors if c.breed == "cop"])/self.numCops
+        citizen_in_neighborhood = len([c for c in self.neighbors if c.breed == "citizen"])/self.numCitizens
+        if citizen_in_neighborhood <= cops_in_neighborhood:
+            self.citizen = Citizen(
+            self.unique_id,
+            self,
+            (x, y),
+            hardship=self.random.random(),
+            regime_legitimacy=self.legitimacy,
+            risk_aversion=self.random.random(),
+            direction_bias=self.direction_bias,
+            threshold=self.active_threshold,
+            vision=self.citizen_vision,
+            aggression=self.aggression,
+            )
+            self.x, self.y = x, y
+
+            grid_adder(self, self.citizen)
+        else:
+            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+            self.x, self.y = x, y
+            grid_adder(self, self.cop)
 
 
 # %%
