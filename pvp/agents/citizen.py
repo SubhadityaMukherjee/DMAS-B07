@@ -202,7 +202,7 @@ class Citizen(Agent):
         if len(choices) != 0:
             return random.choice(choices)
         else:
-            return None  # self.random.choice(possible_moves)
+            return self.random.choice(possible_moves)
 
     def update_neighbors(self):
         """
