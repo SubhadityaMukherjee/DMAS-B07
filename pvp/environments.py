@@ -1,5 +1,6 @@
 # %%
 from functools import partial
+import sorting
 from random import choices
 
 import numpy as np
@@ -122,6 +123,21 @@ def random_strategy(self):  # random distribution
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
 
+def bubbleSort(arr):
+    n = len(arr)
+    for i in range(1, int(n/6)):
+  
+        key = arr[i]
+  
+        # Move elements of arr[0..i-1], that are
+        # greater than key, to one position ahead
+        # of their current position
+        j = i-1
+        while j >=0 and key < arr[j] :
+                arr[j+1] = arr[j]
+                j -= 1
+        arr[j+1] = key
+    return arr
 
 def cluster_strategy(self):
     """
@@ -138,9 +154,10 @@ def cluster_strategy(self):
 
     arr = np.random.choice(
         [0, 1, 2, 3], h * w, p=[freeProb, citizenProb, copProb, blockProb]
-    ).reshape(h, w)
-    self.temp_grid = KMeans(n_clusters=4).fit(arr.reshape(-1, 1)).labels_.reshape(h, w)
-    self.temp_grid = np.partition(self.temp_grid, 4, axis=1)
+    )
+    np.random.shuffle(arr)
+    self.temp_grid = bubbleSort(arr).reshape(h,w)
+    # self.temp_grid = np.partition(self.temp_grid, 4, axis=1)
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
