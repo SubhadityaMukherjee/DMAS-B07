@@ -58,7 +58,7 @@ class ProtestersVsPolice(Model):
         legitimacy=0.8,
         max_jail_term=1000,
         jail_capacity=50,
-        active_threshold=0.9, #original: 0.1
+        active_threshold=0.9,  # original: 0.1
         wrap="Wrap around",
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO

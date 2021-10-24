@@ -1,0 +1,2 @@
+- screenshots of every environment
+- one a few steps in to show deviants

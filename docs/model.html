@@ -38,7 +38,7 @@ from mesa.time import RandomActivation
 from .agents.block import Block
 from .agents.citizen import Citizen
 from .agents.cop import Cop
-from .strategies import *
+from .environments import *
 
 try:
     from playsound import playsound
@@ -86,7 +86,7 @@ class ProtestersVsPolice(Model):
         legitimacy=0.8,
         max_jail_term=1000,
         jail_capacity=50,
-        active_threshold=0.1,
+        active_threshold=0.9,  # original: 0.1
         wrap=&#34;Wrap around&#34;,
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
@@ -112,7 +112,6 @@ class ProtestersVsPolice(Model):
         self.movement = movement
         self.jailed_agents = []
         self.arrested_agents = []
-        self.jailed = 0
         self.test = 0
         self.wrap = wrap
         self.max_iters = max_iters
@@ -170,6 +169,8 @@ class ProtestersVsPolice(Model):
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
+        elif self.environment == &#34;Clustered&#34;:
+            cluster_strategy(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -358,7 +359,7 @@ array([[-4.49401501,  4.00950034, -1.81814867,  7.29718677],   # random
 <dl>
 <dt id="pvp.model.ProtestersVsPolice"><code class="flex name class">
 <span>class <span class="ident">ProtestersVsPolice</span></span>
-<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.1, wrap='Wrap around', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000, funmode=False)</span>
+<span>(</span><span>height=40, width=40, grid_density=0.7, ratio=0.074, environment='Random distribution', barricade=4, citizen_vision=7, cop_vision=7, legitimacy=0.8, max_jail_term=1000, jail_capacity=50, active_threshold=0.9, wrap='Wrap around', arrest_prob_constant=2.3, aggression=0.7, direction_bias='none', movement=True, max_iters=1000, funmode=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Model 1 from "Modeling civil violence: An agent-based computational
@@ -452,7 +453,7 @@ start the model.</p>
         legitimacy=0.8,
         max_jail_term=1000,
         jail_capacity=50,
-        active_threshold=0.1,
+        active_threshold=0.9,  # original: 0.1
         wrap=&#34;Wrap around&#34;,
         arrest_prob_constant=2.3,
         aggression=0.7,  # TODO
@@ -478,7 +479,6 @@ start the model.</p>
         self.movement = movement
         self.jailed_agents = []
         self.arrested_agents = []
-        self.jailed = 0
         self.test = 0
         self.wrap = wrap
         self.max_iters = max_iters
@@ -536,6 +536,8 @@ start the model.</p>
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
+        elif self.environment == &#34;Clustered&#34;:
+            cluster_strategy(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -731,7 +733,9 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     elif self.environment == &#34;Wall of cops&#34;:
         side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
     elif self.environment == &#34;Street&#34;:
-        streets(self)</code></pre>
+        streets(self)
+    elif self.environment == &#34;Clustered&#34;:
+        cluster_strategy(self)</code></pre>
 </details>
 </dd>
 <dt id="pvp.model.ProtestersVsPolice.step"><code class="name flex">

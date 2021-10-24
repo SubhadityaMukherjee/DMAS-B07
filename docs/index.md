@@ -30,15 +30,15 @@
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="pvp.environments" href="environments.html">pvp.environments</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="pvp.model" href="model.html">pvp.model</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="pvp.server" href="server.html">pvp.server</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="pvp.strategies" href="strategies.html">pvp.strategies</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -60,9 +60,9 @@
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="pvp.agents" href="agents/index.html">pvp.agents</a></code></li>
+<li><code><a title="pvp.environments" href="environments.html">pvp.environments</a></code></li>
 <li><code><a title="pvp.model" href="model.html">pvp.model</a></code></li>
 <li><code><a title="pvp.server" href="server.html">pvp.server</a></code></li>
-<li><code><a title="pvp.strategies" href="strategies.html">pvp.strategies</a></code></li>
 </ul>
 </li>
 </ul>

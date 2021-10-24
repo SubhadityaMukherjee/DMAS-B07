@@ -16,7 +16,7 @@ from .model import ProtestersVsPolice
 # ags = ap.parse_args()
 
 COP_COLOR = "#000000"
-COP_ARRESTING_COLOR = '#fcba03'
+COP_ARRESTING_COLOR = "#fcba03"
 AGENT_QUIET_COLOR = "#0066CC"
 AGENT_REBEL_COLOR = "#CC0000"
 AGENT_DEVIANT_COLOR = "#00FBFF"
@@ -155,7 +155,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == "Block":
                 block += 1
 
-        stats = f"""Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}""" #FIXME New lines somehow don't work?
+        stats = f"""Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}"""  # FIXME New lines somehow don't work?
         return stats
 
 

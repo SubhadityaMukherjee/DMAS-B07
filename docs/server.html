@@ -44,6 +44,7 @@ from .model import ProtestersVsPolice
 # ags = ap.parse_args()
 
 COP_COLOR = &#34;#000000&#34;
+COP_ARRESTING_COLOR = &#34;#fcba03&#34;
 AGENT_QUIET_COLOR = &#34;#0066CC&#34;
 AGENT_REBEL_COLOR = &#34;#CC0000&#34;
 AGENT_DEVIANT_COLOR = &#34;#00FBFF&#34;
@@ -80,7 +81,8 @@ def citizen_cop_portrayal(agent):
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Cop:
-        portrayal[&#34;Color&#34;] = COP_COLOR
+        color = COP_COLOR if agent.can_arrest else COP_ARRESTING_COLOR
+        portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.5
         portrayal[&#34;Layer&#34;] = 1
     return portrayal
@@ -121,8 +123,10 @@ model_params = {
         choices=[
             &#34;Random distribution&#34;,
             &#34;Block in the middle&#34;,
-            &#34;Cops in the middle&#34; &#34;Wall of cops&#34;,
+            &#34;Cops in the middle&#34;,
+            &#34;Wall of cops&#34;,
             &#34;Street&#34;,
+            &#34;Clustered&#34;,
         ],
         description=&#34;&#34;,
     ),
@@ -155,13 +159,13 @@ model_params = {
     &#34;legitimacy&#34;: 0.8,
     &#34;max_jail_term&#34;: 1000,
     &#34;barricade&#34;: 50,
-    &#34;funmode&#34;: False,  # pew pew pew xD
+    &#34;funmode&#34;: False,  # Set to True for sound effects
 }
 
 
 class AgentLeftElement(TextElement):
     &#34;&#34;&#34;
-    Display a text count of how many happy agents there are.
+    Display a text count of how many agents there are.
     &#34;&#34;&#34;
 
     def __init__(self):
@@ -179,7 +183,7 @@ class AgentLeftElement(TextElement):
             if agent.breed == &#34;Block&#34;:
                 block += 1
 
-        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}&#34;&#34;&#34;  # FIXME New lines somehow don&#39;t work?
         return stats
 
 
@@ -252,7 +256,8 @@ server = ModularServer(
         portrayal[&#34;Layer&#34;] = 0
 
     elif type(agent) is Cop:
-        portrayal[&#34;Color&#34;] = COP_COLOR
+        color = COP_COLOR if agent.can_arrest else COP_ARRESTING_COLOR
+        portrayal[&#34;Color&#34;] = color
         portrayal[&#34;r&#34;] = 0.5
         portrayal[&#34;Layer&#34;] = 1
     return portrayal</code></pre>
@@ -267,14 +272,14 @@ server = ModularServer(
 <span>class <span class="ident">AgentLeftElement</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Display a text count of how many happy agents there are.</p></div>
+<div class="desc"><p>Display a text count of how many agents there are.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AgentLeftElement(TextElement):
     &#34;&#34;&#34;
-    Display a text count of how many happy agents there are.
+    Display a text count of how many agents there are.
     &#34;&#34;&#34;
 
     def __init__(self):
@@ -292,7 +297,7 @@ server = ModularServer(
             if agent.breed == &#34;Block&#34;:
                 block += 1
 
-        stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}&#34;&#34;&#34;
+        stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}&#34;&#34;&#34;  # FIXME New lines somehow don&#39;t work?
         return stats</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -330,7 +335,7 @@ server = ModularServer(
         if agent.breed == &#34;Block&#34;:
             block += 1
 
-    stats = f&#34;&#34;&#34;#Citizens: {str(citizen)}, #Cops: {str(cop)}, #Blocks: {str(block)}, Avg Aggression : {model.avg_agg}, , #jailed protesters: {str(len(model.arrested_agents))}&#34;&#34;&#34;
+    stats = f&#34;&#34;&#34;Number of citizens: {str(citizen)}, Number of jailed citizens: {str(len(model.jailed_agents))}, \n Number of cops: {str(cop)}, Number of blocks: {str(block)}, \n Average Aggression: {model.avg_agg}&#34;&#34;&#34;  # FIXME New lines somehow don&#39;t work?
     return stats</code></pre>
 </details>
 </dd>

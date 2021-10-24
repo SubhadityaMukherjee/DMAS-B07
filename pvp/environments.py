@@ -8,8 +8,14 @@ from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
 from numpy.random.mtrand import normal
+from sklearn.cluster import KMeans
 
 from .agents import *
+
+# from sklearn.datasets import make_blobs
+
+
+
 
 # %%
 
@@ -45,7 +51,9 @@ def middle_block(self, typea="block"):
             if typea == "block":
                 grid_adder(self, Block(self.unique_id, self, (x, y)))
             elif typea == "cop":
-                grid_adder(self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision))
+                grid_adder(
+                    self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+                )
             num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
@@ -106,7 +114,6 @@ def random_strategy(self):  # random distribution
             vision=self.citizen_vision,
             aggression=self.aggression,
         )
-
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
 
@@ -117,35 +124,26 @@ def random_strategy(self):  # random distribution
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
 
-def cluster_strategy(self):  # grouped distribution
+
+def cluster_strategy(self):
     """
     Places objects in clusters, except barricades
     """
-    for bar in range(self.barricade):
-        x = self.random.randrange(self.width)
-        y = self.random.randrange(self.height)
-        coord = (x,y)
-        while not self.grid.is_cell_empty(coord):
-            x = self.random.randrange(self.width)
-            y = self.random.randrange(self.height)
-            coord = (x,y)
 
-        self.block = Block(self.unique_id, self, (x, y))
-        self.x, self.y = x, y
+    h, w = self.height, self.width
+    citizenProb = self.numCitizens / self.numTotalSpaces
+    freeProb = (
+        self.numTotalSpaces - self.numFreeSpaces - self.barricade
+    ) / self.numTotalSpaces
+    copProb = self.numCops / self.numTotalSpaces
+    blockProb = self.barricade / self.numTotalSpaces
 
-        grid_adder(self, self.block)
+    arr = np.random.choice(
+        [0, 1, 2, 3], h * w, p=[freeProb, citizenProb, copProb, blockProb]
+    ).reshape(h, w)
+    self.temp_grid = KMeans(n_clusters=4).fit(arr.reshape(-1, 1)).labels_.reshape(h, w)
 
-
-    citizenClusterStart = int(self.numCitizens // 5)
-    citizensLeft = self.numCitizens - citizenClusterStart
-    for cit in range(citizenClusterStart):
-        x = self.random.randrange(self.width)
-        y = self.random.randrange(self.height)
-        coord = (x,y)
-        while not self.grid.is_cell_empty(coord):
-            x = self.random.randrange(self.width)
-            y = self.random.randrange(self.height)
-            coord = (x,y)
+    for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
             self.unique_id,
             self,
@@ -158,61 +156,118 @@ def cluster_strategy(self):  # grouped distribution
             vision=self.citizen_vision,
             aggression=self.aggression,
         )
-        self.x, self.y = x, y
 
-        grid_adder(self, self.citizen)
-
-
-    copClusterStart = int(self.numCops // 5)
-    copsLeft = self.numCops - copClusterStart
-    for cop in range(copClusterStart):
-        x = self.random.randrange(self.width)
-        y = self.random.randrange(self.height)
-        coord = (x,y)
-        while not self.grid.is_cell_empty(coord):
-            x = self.random.randrange(self.width)
-            y = self.random.randrange(self.height)
-            coord = (x,y)
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+        self.block = Block(self.unique_id, self, (x, y))
+
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
+
         self.x, self.y = x, y
-        grid_adder(self, self.cop)
 
+        if self.temp_grid[y][x] == 2:
+            grid_adder(self, agent_dict[2])
 
-    for agent in range(int(copsLeft + citizensLeft)):
-        x = self.random.randrange(self.width)
-        y = self.random.randrange(self.height)
-        coord = (x,y)
-        while not self.grid.is_cell_empty(coord):
-            x = self.random.randrange(self.width)
-            y = self.random.randrange(self.height)
-            coord = (x,y)
-
-        self.neighborhood = self.grid.get_neighborhood(
-            coord, moore=False, radius=1
-        )
-        self.neighbors = self.grid.get_cell_list_contents(self.neighborhood)
-        cops_in_neighborhood = len([c for c in self.neighbors if c.breed == "cop"])/self.numCops
-        citizen_in_neighborhood = len([c for c in self.neighbors if c.breed == "citizen"])/self.numCitizens
-        if citizen_in_neighborhood <= cops_in_neighborhood:
-            self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            direction_bias=self.direction_bias,
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-            )
-            self.x, self.y = x, y
-
-            grid_adder(self, self.citizen)
         else:
-            self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-            self.x, self.y = x, y
-            grid_adder(self, self.cop)
+            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
+            grid_adder(self, agent_dict[rand[0]])
+
+
+# def cluster_strategy(self):  # grouped distribution
+#     """
+#     Places objects in clusters, except barricades
+#     """
+#     for bar in range(self.barricade):
+#         x = self.random.randrange(self.width)
+#         y = self.random.randrange(self.height)
+#         coord = (x,y)
+#         while not self.grid.is_cell_empty(coord):
+#             x = self.random.randrange(self.width)
+#             y = self.random.randrange(self.height)
+#             coord = (x,y)
+
+#         self.block = Block(self.unique_id, self, (x, y))
+#         self.x, self.y = x, y
+
+#         grid_adder(self, self.block)
+
+
+#     citizenClusterStart = int(self.numCitizens // 5)
+#     citizensLeft = self.numCitizens - citizenClusterStart
+#     for cit in range(citizenClusterStart):
+#         x = self.random.randrange(self.width)
+#         y = self.random.randrange(self.height)
+#         coord = (x,y)
+#         while not self.grid.is_cell_empty(coord):
+#             x = self.random.randrange(self.width)
+#             y = self.random.randrange(self.height)
+#             coord = (x,y)
+#         self.citizen = Citizen(
+#             self.unique_id,
+#             self,
+#             (x, y),
+#             hardship=self.random.random(),
+#             regime_legitimacy=self.legitimacy,
+#             risk_aversion=self.random.random(),
+#             direction_bias=self.direction_bias,
+#             threshold=self.active_threshold,
+#             vision=self.citizen_vision,
+#             aggression=self.aggression,
+#         )
+#         self.x, self.y = x, y
+
+#         grid_adder(self, self.citizen)
+
+
+#     copClusterStart = int(self.numCops // 5)
+#     copsLeft = self.numCops - copClusterStart
+#     for cop in range(copClusterStart):
+#         x = self.random.randrange(self.width)
+#         y = self.random.randrange(self.height)
+#         coord = (x,y)
+#         while not self.grid.is_cell_empty(coord):
+#             x = self.random.randrange(self.width)
+#             y = self.random.randrange(self.height)
+#             coord = (x,y)
+#         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+#         self.x, self.y = x, y
+#         grid_adder(self, self.cop)
+
+
+#     for agent in range(int(copsLeft + citizensLeft)):
+#         x = self.random.randrange(self.width)
+#         y = self.random.randrange(self.height)
+#         coord = (x,y)
+#         while not self.grid.is_cell_empty(coord):
+#             x = self.random.randrange(self.width)
+#             y = self.random.randrange(self.height)
+#             coord = (x,y)
+
+#         self.neighborhood = self.grid.get_neighborhood(
+#             coord, moore=False, radius=1
+#         )
+#         self.neighbors = self.grid.get_cell_list_contents(self.neighborhood)
+#         cops_in_neighborhood = len([c for c in self.neighbors if c.breed == "cop"])/self.numCops
+#         citizen_in_neighborhood = len([c for c in self.neighbors if c.breed == "citizen"])/self.numCitizens
+#         if citizen_in_neighborhood <= cops_in_neighborhood:
+#             self.citizen = Citizen(
+#             self.unique_id,
+#             self,
+#             (x, y),
+#             hardship=self.random.random(),
+#             regime_legitimacy=self.legitimacy,
+#             risk_aversion=self.random.random(),
+#             direction_bias=self.direction_bias,
+#             threshold=self.active_threshold,
+#             vision=self.citizen_vision,
+#             aggression=self.aggression,
+#             )
+#             self.x, self.y = x, y
+
+#             grid_adder(self, self.citizen)
+#         else:
+#             self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
+#             self.x, self.y = x, y
+#             grid_adder(self, self.cop)
 
 
 # %%

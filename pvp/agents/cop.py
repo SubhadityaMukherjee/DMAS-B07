@@ -47,14 +47,26 @@ class Cop(Agent):
         self.update_neighbors()
         active_neighbors, deviant_neighbors, cop_neighbors = [], [], []
         for agent in self.neighbors:
-            if agent.breed == "citizen" and agent.condition == "Active" and not agent.jail_sentence:
+            if (
+                agent.breed == "citizen"
+                and agent.condition == "Active"
+                and not agent.jail_sentence
+            ):
                 active_neighbors.append(agent)
             if agent.breed == "cop":
                 cop_neighbors.append(agent)
-            if agent.breed == "citizen" and agent.condition == "Deviant" and not agent.jail_sentence:
+            if (
+                agent.breed == "citizen"
+                and agent.condition == "Deviant"
+                and not agent.jail_sentence
+            ):
                 deviant_neighbors.append(agent)
 
-        if self.can_arrest and self.model.jail_capacity > len(self.model.jailed_agents) and len(cop_neighbors) > 1:
+        if (
+            self.can_arrest
+            and self.model.jail_capacity > len(self.model.jailed_agents)
+            and len(cop_neighbors) > 1
+        ):
             arrestee = None
             if deviant_neighbors:
                 possibles = []
@@ -79,10 +91,14 @@ class Cop(Agent):
             if useful_move:
                 self.model.grid.move_agent(self, useful_move)
             else:
-                self.model.grid.move_agent(self, self.random.choice(self.empty_neighbors))
+                self.model.grid.move_agent(
+                    self, self.random.choice(self.empty_neighbors)
+                )
 
     def move_towards_actives(self):
-        neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, radius=self.vision)
+        neighborhood = self.model.grid.get_neighborhood(
+            self.pos, moore=False, radius=self.vision
+        )
         deviants, actives = [], []
         toward = None
         for x in neighborhood:
@@ -98,18 +114,30 @@ class Cop(Agent):
             toward = random.choice(actives)
         else:
             return None
-        dict = {"left": (self.pos[0]-1, self.pos[1]), "right": (self.pos[0]+1, self.pos[1]),
-                "up": (self.pos[0], self.pos[1]-1), "down": (self.pos[0], self.pos[1]+1)}
+        dict = {
+            "left": (self.pos[0] - 1, self.pos[1]),
+            "right": (self.pos[0] + 1, self.pos[1]),
+            "up": (self.pos[0], self.pos[1] - 1),
+            "down": (self.pos[0], self.pos[1] + 1),
+        }
         new_pos = []
 
         if toward:
-            if toward[0] > self.pos[0] and self.model.grid.is_cell_empty(dict["right"]):  # citizen is more right than cop
+            if toward[0] > self.pos[0] and self.model.grid.is_cell_empty(
+                dict["right"]
+            ):  # citizen is more right than cop
                 new_pos.append("right")
-            elif toward[0] < self.pos[0] and self.model.grid.is_cell_empty(dict["left"]):  # citizen is more left than cop
+            elif toward[0] < self.pos[0] and self.model.grid.is_cell_empty(
+                dict["left"]
+            ):  # citizen is more left than cop
                 new_pos.append("left")
-            if toward[1] > self.pos[1] and self.model.grid.is_cell_empty(dict["down"]):  # citizen is further down than cop
+            if toward[1] > self.pos[1] and self.model.grid.is_cell_empty(
+                dict["down"]
+            ):  # citizen is further down than cop
                 new_pos.append("down")
-            elif toward[1] < self.pos[1] and self.model.grid.is_cell_empty(dict["up"]):  # citizen is further up than cop
+            elif toward[1] < self.pos[1] and self.model.grid.is_cell_empty(
+                dict["up"]
+            ):  # citizen is further up than cop
                 new_pos.append("up")
         new_pos = dict[random.choice(new_pos)] if new_pos else None
         return new_pos
@@ -125,5 +153,3 @@ class Cop(Agent):
         self.empty_neighbors = [
             c for c in self.neighborhood if self.model.grid.is_cell_empty(c)
         ]
-
-
