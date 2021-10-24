@@ -15,8 +15,6 @@ from .agents import *
 # from sklearn.datasets import make_blobs
 
 
-
-
 # %%
 
 """
@@ -142,6 +140,7 @@ def cluster_strategy(self):
         [0, 1, 2, 3], h * w, p=[freeProb, citizenProb, copProb, blockProb]
     ).reshape(h, w)
     self.temp_grid = KMeans(n_clusters=4).fit(arr.reshape(-1, 1)).labels_.reshape(h, w)
+    self.temp_grid = np.partition(self.temp_grid, 4, axis=1)
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
