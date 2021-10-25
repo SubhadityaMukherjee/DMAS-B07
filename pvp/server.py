@@ -98,7 +98,6 @@ model_params = {
             "Cops in the middle",
             "Wall of cops",
             "Street",
-            "Clustered",
         ],
         description="",
     ),

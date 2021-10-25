@@ -141,8 +141,6 @@ class ProtestersVsPolice(Model):
             side_strategy(self, "left", "cop")
         elif self.environment == "Street":
             streets(self)
-        elif self.environment == "Clustered":
-            cluster_strategy(self)
 
     def step(self):
         """
