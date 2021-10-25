@@ -42,7 +42,7 @@ def middle_block(self, typea="block"):
     y_start = self.height / 3
     x_end = self.width - x_start
     y_end = self.height - y_start
-    num_blocks = 0
+    
     for (_, x, y) in self.grid.coord_iter():
         if x_start <= x <= x_end and y_start <= y <= y_end:
             self.x, self.y = x, y
@@ -52,13 +52,12 @@ def middle_block(self, typea="block"):
                 grid_adder(
                     self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
                 )
-            num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = num_blocks / (self.numTotalSpaces + (free * self.ratio) )
+    blockProb = self.barricade / self.numTotalSpaces
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
