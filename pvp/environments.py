@@ -49,17 +49,24 @@ def middle_block(self, typea="block"):
             self.x, self.y = x, y
             if typea == "block":
                 grid_adder(self, Block(self.unique_id, self, (x, y)))
-                num_blocks += 1
             elif typea == "cop":
                 grid_adder(
                     self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
                 )
+            num_blocks += 1
 
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
-    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = self.barricade / self.numTotalSpaces
+    if typea == "cop":
+        blockProb = self.barricade / self.numTotalSpaces
+        copProb = 1 - citizenProb - freeProb - blockProb # really not legit but it works
+    else:
+        copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+        blockProb = num_blocks / self.numTotalSpaces
+
+    print(blockProb, freeProb, citizenProb, copProb)
+    print(blockProb+ freeProb+ citizenProb+ copProb)
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
@@ -77,14 +84,14 @@ def middle_block(self, typea="block"):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: None}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block, 3: None}
         if x < x_start or x > x_end or y < y_start or y > y_end:
             if typea == "block":
-                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
                 grid_adder(self, agent_dict[rand[0]])
             elif typea == "cop":
-                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                rand = choices([0, 1, 2, 3], [freeProb, citizenProb, blockProb, copProb])
                 grid_adder(self, agent_dict_d[rand[0]])
 
 
