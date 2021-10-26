@@ -107,8 +107,7 @@ class Citizen(Agent):
         net_risk = self.risk_aversion * self.arrest_probability
         if (
             # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
-            self.condition
-            == "Quiescent"  # or self.condition == "Deviant" #turning this on shows some really interesting behaviour
+            self.condition == "Quiescent" #or self.condition == "Deviant" #turning this on shows some really interesting behaviour
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
@@ -227,7 +226,9 @@ class Citizen(Agent):
         actives_in_vision = 1.0  # citizen counts herself
         for c in self.neighbors:
             if (
-                c.breed == "citizen" and c.condition == "Active" and not c.jail_sentence
+                c.breed == "citizen"
+                and c.condition == "Active"
+                and not c.jail_sentence
             ):  # c.jail_sentence == 0
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
@@ -250,9 +251,11 @@ class Citizen(Agent):
         arrestees_in_vision = 0  # citizen counts herself
         for c in neighbors:
             if (
-                c.breed == "citizen" and c.condition == "Deviant" and c.jail_sentence
+                c.breed == "citizen"
+                and c.condition == "Deviant"
+                and c.jail_sentence
             ):  # c.jail_sentence == 0
                 arrestees_in_vision += 1
-        if arrestees_in_vision > 0:
-            self.threshold /= 2  # need to tweak this parameter
+        if (arrestees_in_vision > 0):
+            self.threshold /= 2 #need to tweak this parameter
             print(arrestees_in_vision)

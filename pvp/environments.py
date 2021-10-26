@@ -42,12 +42,14 @@ def middle_block(self, typea="block"):
     y_start = self.height / 3
     x_end = self.width - x_start
     y_end = self.height - y_start
-    
+
+    num_blocks = 0
     for (_, x, y) in self.grid.coord_iter():
         if x_start <= x <= x_end and y_start <= y <= y_end:
             self.x, self.y = x, y
             if typea == "block":
                 grid_adder(self, Block(self.unique_id, self, (x, y)))
+                num_blocks += 1
             elif typea == "cop":
                 grid_adder(
                     self, Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
