@@ -169,8 +169,6 @@ class ProtestersVsPolice(Model):
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
-        elif self.environment == &#34;Clustered&#34;:
-            cluster_strategy(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -536,8 +534,6 @@ start the model.</p>
             side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
         elif self.environment == &#34;Street&#34;:
             streets(self)
-        elif self.environment == &#34;Clustered&#34;:
-            cluster_strategy(self)
 
     def step(self):
         &#34;&#34;&#34;
@@ -733,9 +729,7 @@ def count_type_citizens(model, condition, exclude_jailed=True):
     elif self.environment == &#34;Wall of cops&#34;:
         side_strategy(self, &#34;left&#34;, &#34;cop&#34;)
     elif self.environment == &#34;Street&#34;:
-        streets(self)
-    elif self.environment == &#34;Clustered&#34;:
-        cluster_strategy(self)</code></pre>
+        streets(self)</code></pre>
 </details>
 </dd>
 <dt id="pvp.model.ProtestersVsPolice.step"><code class="name flex">

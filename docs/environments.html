@@ -70,6 +70,7 @@ def middle_block(self, typea=&#34;block&#34;):
     y_start = self.height / 3
     x_end = self.width - x_start
     y_end = self.height - y_start
+
     num_blocks = 0
     for (_, x, y) in self.grid.coord_iter():
         if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
@@ -85,8 +86,17 @@ def middle_block(self, typea=&#34;block&#34;):
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
-    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = num_blocks / self.numTotalSpaces
+    if typea == &#34;cop&#34;:
+        blockProb = self.barricade / self.numTotalSpaces
+        copProb = (
+            1 - citizenProb - freeProb - blockProb
+        )  # really not legit but it works
+    else:
+        copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+        blockProb = num_blocks / self.numTotalSpaces
+
+    print(blockProb, freeProb, citizenProb, copProb)
+    print(blockProb + freeProb + citizenProb + copProb)
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
@@ -104,14 +114,18 @@ def middle_block(self, typea=&#34;block&#34;):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: None}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block, 3: None}
         if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
             if typea == &#34;block&#34;:
-                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                rand = choices(
+                    [0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb]
+                )
                 grid_adder(self, agent_dict[rand[0]])
             elif typea == &#34;cop&#34;:
-                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                rand = choices(
+                    [0, 1, 2, 3], [freeProb, citizenProb, blockProb, copProb]
+                )
                 grid_adder(self, agent_dict_d[rand[0]])
 
 
@@ -149,152 +163,6 @@ def random_strategy(self):  # random distribution
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
-
-
-def cluster_strategy(self):
-    &#34;&#34;&#34;
-    Places objects in clusters, except barricades
-    &#34;&#34;&#34;
-
-    h, w = self.height, self.width
-    citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (
-        self.numTotalSpaces - self.numFreeSpaces - self.barricade
-    ) / self.numTotalSpaces
-    copProb = self.numCops / self.numTotalSpaces
-    blockProb = self.barricade / self.numTotalSpaces
-
-    arr = np.random.choice(
-        [0, 1, 2, 3], h * w, p=[freeProb, citizenProb, copProb, blockProb]
-    ).reshape(h, w)
-    self.temp_grid = KMeans(n_clusters=4).fit(arr.reshape(-1, 1)).labels_.reshape(h, w)
-    self.temp_grid = np.partition(self.temp_grid, 4, axis=1)
-
-    for (_, x, y) in self.grid.coord_iter():
-        self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            direction_bias=self.direction_bias,
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-        )
-
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        self.block = Block(self.unique_id, self, (x, y))
-
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-
-        self.x, self.y = x, y
-
-        if self.temp_grid[y][x] == 2:
-            grid_adder(self, agent_dict[2])
-
-        else:
-            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
-            grid_adder(self, agent_dict[rand[0]])
-
-
-# def cluster_strategy(self):  # grouped distribution
-#     &#34;&#34;&#34;
-#     Places objects in clusters, except barricades
-#     &#34;&#34;&#34;
-#     for bar in range(self.barricade):
-#         x = self.random.randrange(self.width)
-#         y = self.random.randrange(self.height)
-#         coord = (x,y)
-#         while not self.grid.is_cell_empty(coord):
-#             x = self.random.randrange(self.width)
-#             y = self.random.randrange(self.height)
-#             coord = (x,y)
-
-#         self.block = Block(self.unique_id, self, (x, y))
-#         self.x, self.y = x, y
-
-#         grid_adder(self, self.block)
-
-
-#     citizenClusterStart = int(self.numCitizens // 5)
-#     citizensLeft = self.numCitizens - citizenClusterStart
-#     for cit in range(citizenClusterStart):
-#         x = self.random.randrange(self.width)
-#         y = self.random.randrange(self.height)
-#         coord = (x,y)
-#         while not self.grid.is_cell_empty(coord):
-#             x = self.random.randrange(self.width)
-#             y = self.random.randrange(self.height)
-#             coord = (x,y)
-#         self.citizen = Citizen(
-#             self.unique_id,
-#             self,
-#             (x, y),
-#             hardship=self.random.random(),
-#             regime_legitimacy=self.legitimacy,
-#             risk_aversion=self.random.random(),
-#             direction_bias=self.direction_bias,
-#             threshold=self.active_threshold,
-#             vision=self.citizen_vision,
-#             aggression=self.aggression,
-#         )
-#         self.x, self.y = x, y
-
-#         grid_adder(self, self.citizen)
-
-
-#     copClusterStart = int(self.numCops // 5)
-#     copsLeft = self.numCops - copClusterStart
-#     for cop in range(copClusterStart):
-#         x = self.random.randrange(self.width)
-#         y = self.random.randrange(self.height)
-#         coord = (x,y)
-#         while not self.grid.is_cell_empty(coord):
-#             x = self.random.randrange(self.width)
-#             y = self.random.randrange(self.height)
-#             coord = (x,y)
-#         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-#         self.x, self.y = x, y
-#         grid_adder(self, self.cop)
-
-
-#     for agent in range(int(copsLeft + citizensLeft)):
-#         x = self.random.randrange(self.width)
-#         y = self.random.randrange(self.height)
-#         coord = (x,y)
-#         while not self.grid.is_cell_empty(coord):
-#             x = self.random.randrange(self.width)
-#             y = self.random.randrange(self.height)
-#             coord = (x,y)
-
-#         self.neighborhood = self.grid.get_neighborhood(
-#             coord, moore=False, radius=1
-#         )
-#         self.neighbors = self.grid.get_cell_list_contents(self.neighborhood)
-#         cops_in_neighborhood = len([c for c in self.neighbors if c.breed == &#34;cop&#34;])/self.numCops
-#         citizen_in_neighborhood = len([c for c in self.neighbors if c.breed == &#34;citizen&#34;])/self.numCitizens
-#         if citizen_in_neighborhood &lt;= cops_in_neighborhood:
-#             self.citizen = Citizen(
-#             self.unique_id,
-#             self,
-#             (x, y),
-#             hardship=self.random.random(),
-#             regime_legitimacy=self.legitimacy,
-#             risk_aversion=self.random.random(),
-#             direction_bias=self.direction_bias,
-#             threshold=self.active_threshold,
-#             vision=self.citizen_vision,
-#             aggression=self.aggression,
-#             )
-#             self.x, self.y = x, y
-
-#             grid_adder(self, self.citizen)
-#         else:
-#             self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-#             self.x, self.y = x, y
-#             grid_adder(self, self.cop)
 
 
 # %%
@@ -407,63 +275,6 @@ def streets(self):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="pvp.environments.cluster_strategy"><code class="name flex">
-<span>def <span class="ident">cluster_strategy</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Places objects in clusters, except barricades</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def cluster_strategy(self):
-    &#34;&#34;&#34;
-    Places objects in clusters, except barricades
-    &#34;&#34;&#34;
-
-    h, w = self.height, self.width
-    citizenProb = self.numCitizens / self.numTotalSpaces
-    freeProb = (
-        self.numTotalSpaces - self.numFreeSpaces - self.barricade
-    ) / self.numTotalSpaces
-    copProb = self.numCops / self.numTotalSpaces
-    blockProb = self.barricade / self.numTotalSpaces
-
-    arr = np.random.choice(
-        [0, 1, 2, 3], h * w, p=[freeProb, citizenProb, copProb, blockProb]
-    ).reshape(h, w)
-    self.temp_grid = KMeans(n_clusters=4).fit(arr.reshape(-1, 1)).labels_.reshape(h, w)
-    self.temp_grid = np.partition(self.temp_grid, 4, axis=1)
-
-    for (_, x, y) in self.grid.coord_iter():
-        self.citizen = Citizen(
-            self.unique_id,
-            self,
-            (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            risk_aversion=self.random.random(),
-            direction_bias=self.direction_bias,
-            threshold=self.active_threshold,
-            vision=self.citizen_vision,
-            aggression=self.aggression,
-        )
-
-        self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
-        self.block = Block(self.unique_id, self, (x, y))
-
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
-
-        self.x, self.y = x, y
-
-        if self.temp_grid[y][x] == 2:
-            grid_adder(self, agent_dict[2])
-
-        else:
-            rand = choices([0, 1, 3], [freeProb, citizenProb, blockProb])
-            grid_adder(self, agent_dict[rand[0]])</code></pre>
-</details>
-</dd>
 <dt id="pvp.environments.grid_adder"><code class="name flex">
 <span>def <span class="ident">grid_adder</span></span>(<span>self, atype)</span>
 </code></dt>
@@ -500,6 +311,7 @@ def streets(self):
     y_start = self.height / 3
     x_end = self.width - x_start
     y_end = self.height - y_start
+
     num_blocks = 0
     for (_, x, y) in self.grid.coord_iter():
         if x_start &lt;= x &lt;= x_end and y_start &lt;= y &lt;= y_end:
@@ -515,8 +327,17 @@ def streets(self):
     free = (self.numTotalSpaces - num_blocks) * self.grid_density
     citizenProb = (free * self.ratio) / self.numTotalSpaces
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
-    copProb = (free - (free * self.ratio)) / self.numTotalSpaces
-    blockProb = num_blocks / self.numTotalSpaces
+    if typea == &#34;cop&#34;:
+        blockProb = self.barricade / self.numTotalSpaces
+        copProb = (
+            1 - citizenProb - freeProb - blockProb
+        )  # really not legit but it works
+    else:
+        copProb = (free - (free * self.ratio)) / self.numTotalSpaces
+        blockProb = num_blocks / self.numTotalSpaces
+
+    print(blockProb, freeProb, citizenProb, copProb)
+    print(blockProb + freeProb + citizenProb + copProb)
 
     for (_, x, y) in self.grid.coord_iter():
         self.citizen = Citizen(
@@ -534,14 +355,18 @@ def streets(self):
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
-        agent_dict = {0: None, 1: self.citizen, 2: self.cop}
-        agent_dict_d = {0: None, 1: self.citizen, 2: self.block}
+        agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: None}
+        agent_dict_d = {0: None, 1: self.citizen, 2: self.block, 3: None}
         if x &lt; x_start or x &gt; x_end or y &lt; y_start or y &gt; y_end:
             if typea == &#34;block&#34;:
-                rand = choices([0, 1, 2], [freeProb, citizenProb, copProb])
+                rand = choices(
+                    [0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb]
+                )
                 grid_adder(self, agent_dict[rand[0]])
             elif typea == &#34;cop&#34;:
-                rand = choices([0, 1, 2], [freeProb, citizenProb, blockProb])
+                rand = choices(
+                    [0, 1, 2, 3], [freeProb, citizenProb, blockProb, copProb]
+                )
                 grid_adder(self, agent_dict_d[rand[0]])</code></pre>
 </details>
 </dd>
@@ -823,7 +648,6 @@ Reshape back</p></div>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="two-column">
-<li><code><a title="pvp.environments.cluster_strategy" href="#pvp.environments.cluster_strategy">cluster_strategy</a></code></li>
 <li><code><a title="pvp.environments.grid_adder" href="#pvp.environments.grid_adder">grid_adder</a></code></li>
 <li><code><a title="pvp.environments.middle_block" href="#pvp.environments.middle_block">middle_block</a></code></li>
 <li><code><a title="pvp.environments.normal" href="#pvp.environments.normal">normal</a></code></li>
