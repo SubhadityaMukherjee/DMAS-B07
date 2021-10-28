@@ -84,7 +84,7 @@ model_params = {
         name="Jail capacity",
         value=50,
         min_value=0,
-        max_value=1000,
+        max_value=1550,
         step=1,
         description="",
     ),
@@ -128,7 +128,7 @@ model_params = {
     "citizen_vision": 7,
     "cop_vision": 7,
     "legitimacy": 0.8,
-    "max_jail_term": 1000,
+    "max_jail_term": 1550,
     "barricade": 50,
     "funmode": False,  # Set to True for sound effects
 }
