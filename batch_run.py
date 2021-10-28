@@ -1,18 +1,18 @@
 # from pvp.server import *
-from mesa.batchrunner import BatchRunner
 import pandas as pd
+from mesa.batchrunner import BatchRunner
 
 from pvp.model import ProtestersVsPolice
 
 # JUST CHANGE THESE
-iterations = 3 # no of times to run exp with same params
-max_steps = 250 # no of steps in a single exper
+iterations = 2  # no of times to run exp with same params
+max_steps = 500  # no of steps in a single exper
 
 model_params_batch = {
-    "max_iters":max_steps,
-    "grid_density":0.8,
+    "max_iters": max_steps,
+    "grid_density": 0.8,
     "ratio": 0.8,
-    "jail_capacity":50,
+    "jail_capacity": 50,
     "environment": "Random distribution",
     "wrap": "Wrap around",
     "direction_bias": "Random",
@@ -30,13 +30,14 @@ model_params_batch = {
 
 nice_param_string = [f"{x}_{model_params_batch[x]}" for x in model_params_batch.keys()]
 
-df_final = pd.DataFrame(index=["Quiescent","Active", "Deviant", "Jailed"])
+df_final = pd.DataFrame(index=["Quiescent", "Active", "Deviant", "Jailed"])
 for i in range(iterations):
-    batch_run = BatchRunner(ProtestersVsPolice,
-                            fixed_parameters= model_params_batch,
-                            iterations=1,
-                            max_steps=max_steps,
-                            )
+    batch_run = BatchRunner(
+        ProtestersVsPolice,
+        fixed_parameters=model_params_batch,
+        iterations=1,
+        max_steps=max_steps,
+    )
     batch_run.run_all()
 
     data_collector_agents = batch_run.get_collector_model()
