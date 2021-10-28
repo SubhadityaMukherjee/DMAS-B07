@@ -56,7 +56,6 @@ class ProtestersVsPolice(Model):
         citizen_vision=7,
         cop_vision=7,
         legitimacy=0.8,
-        max_jail_term=1000,
         jail_capacity=50,
         active_threshold=0.9,  # original: 0.1
         wrap="Wrap around",
@@ -77,7 +76,6 @@ class ProtestersVsPolice(Model):
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
         self.legitimacy = legitimacy
-        self.max_jail_term = max_jail_term
         self.jail_capacity = jail_capacity
         self.active_threshold = active_threshold
         self.arrest_prob_constant = arrest_prob_constant

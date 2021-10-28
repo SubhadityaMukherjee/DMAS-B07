@@ -127,8 +127,6 @@ model_params = {
     "width": 40,
     "citizen_vision": 7,
     "cop_vision": 7,
-    "legitimacy": 0.8,
-    "max_jail_term": 1550,
     "barricade": 50,
     "funmode": False,  # Set to True for sound effects
 }
