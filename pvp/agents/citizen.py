@@ -64,8 +64,6 @@ class Citizen(Agent):
         super().__init__(unique_id, model)
         self.breed = "citizen"
         self.pos = pos
-        self.hardship = hardship
-        self.regime_legitimacy = regime_legitimacy
         self.risk_aversion = risk_aversion
         self.threshold = threshold
         self.direction_bias = direction_bias
@@ -73,11 +71,8 @@ class Citizen(Agent):
         self.vision = vision
         self.jail_sentence = False
         self.steps_active = 0
-        self.grievance = self.hardship * (1 - self.regime_legitimacy)
         self.arrest_probability = None
         self.aggression = aggression
-        # TODO: include susceptibility to aggression into when they turn active
-        self.susceptibility_to_aggression = self.random.random()
 
     def step(self):
         """
@@ -137,7 +132,6 @@ class Citizen(Agent):
                 if len(self.empty_neighbors) > 0:
                     move = self.choose_direction(self.empty_neighbors)
                     if move != None:
-                        print(self.pos, move, self.unique_id)
                         self.model.grid.move_agent(self, move)
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
@@ -258,4 +252,4 @@ class Citizen(Agent):
                 arrestees_in_vision += 1
         if (arrestees_in_vision > 0):
             self.threshold /= 2 #need to tweak this parameter
-            print(arrestees_in_vision)
+            
