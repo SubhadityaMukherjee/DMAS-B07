@@ -1,8 +1,6 @@
 # %%
 from random import choices
-
 import numpy as np
-
 from .agents import *
 
 # %%
