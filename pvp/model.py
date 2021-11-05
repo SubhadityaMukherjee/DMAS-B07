@@ -1,5 +1,15 @@
 import os
+from random import choices
 
+import numpy as np
+from mesa import Model
+from mesa.datacollection import DataCollector
+from mesa.space import Grid
+from mesa.time import RandomActivation
+
+from .agents.block import Block
+from .agents.citizen import Citizen
+from .agents.cop import Cop
 from .environments import *
 
 try:
