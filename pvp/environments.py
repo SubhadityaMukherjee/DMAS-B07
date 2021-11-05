@@ -1,5 +1,3 @@
-# %%
-from functools import partial
 from random import choices
 
 import numpy as np
@@ -7,22 +5,8 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import Grid
 from mesa.time import RandomActivation
-from numpy.random.mtrand import normal
-from sklearn.cluster import KMeans
 
 from .agents import *
-
-# from sklearn.datasets import make_blobs
-
-
-# %%
-
-"""
-Refactor random adder to work with parts of the grid 
-Add ability to spawn based on values (aka iterate over grid, pick preallocated values and spawn there)
-Add more strategies
-"""
-
 
 def grid_adder(self, atype):
     """
