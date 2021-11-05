@@ -4,27 +4,9 @@ from mesa import Agent
 
 
 class Cop(Agent):
-    """
-    A cop for life.  No defection.
-    Summary of rule: Inspect local vision and arrest a random active agent.
-
-    Attributes:
-        unique_id: unique int
-        x, y: Grid coordinates
-        vision: number of cells in each direction (N, S, E and W) that cop is
-            able to inspect
-    """
 
     def __init__(self, unique_id, model, pos, vision):
-        """
-        Create a new Cop.
-        Args:
-            unique_id: unique int
-            x, y: Grid coordinates
-            vision: number of cells in each direction (N, S, E and W) that
-                agent can inspect. Exogenous.
-            model: model instance
-        """
+
         super().__init__(unique_id, model)
         self.breed = "cop"
         self.pos = pos
@@ -71,7 +53,7 @@ class Cop(Agent):
             if deviant_neighbors:
                 possibles = []
                 for agent in deviant_neighbors:
-                    if agent.steps_active >= 3:  # TODO: decide on a threshold
+                    if agent.steps_active >= 3:
                         possibles.append(agent)
                 arrestee = self.random.choice(possibles) if possibles else None
             elif active_neighbors:
@@ -100,7 +82,6 @@ class Cop(Agent):
             self.pos, moore=False, radius=self.vision
         )
         deviants, actives = [], []
-        toward = None
         for x in neighborhood:
             neighbor = self.model.grid.get_cell_list_contents(x)
             if neighbor and neighbor[0].breed == "citizen":

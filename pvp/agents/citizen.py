@@ -1,66 +1,23 @@
 import math
 import random
-from operator import pos
 
 from mesa import Agent
 
 
 class Citizen(Agent):
-    """
-    A member of the general population, may or may not be in active rebellion.
-    Summary of rule: If grievance - risk > threshold, rebel.
-
-    Attributes:
-        unique_id: unique int
-        x, y: Grid coordinates
-        hardship: Agent's 'perceived hardship (i.e., physical or economic
-            privation).' Exogenous, drawn from U(0,1).
-        regime_legitimacy: Agent's perception of regime legitimacy, equal
-            across agents.  Exogenous.
-        risk_aversion: Exogenous, drawn from U(0,1).
-        threshold: if (grievance - (risk_aversion * arrest_probability)) >
-            threshold, go/remain Active
-        vision: number of cells in each direction (N, S, E and W) that agent
-            can inspect
-        condition: Can be "Quiescent" or "Active;" deterministic function of
-            greivance, perceived risk, and
-        grievance: deterministic function of hardship and regime_legitimacy;
-            how aggrieved is agent at the regime?
-        arrest_probability: agent's assessment of arrest probability, given
-            rebellion
-
-    """
 
     def __init__(
         self,
         unique_id,
         model,
         pos,
-        hardship,
-        regime_legitimacy,
         risk_aversion,
         threshold,
         vision,
         aggression,
         direction_bias,
     ):
-        """
-        Create a new Citizen.
-        Args:
-            unique_id: unique int
-            x, y: Grid coordinates
-            hardship: Agent's 'perceived hardship (i.e., physical or economic
-                privation).' Exogenous, drawn from U(0,1).
-            regime_legitimacy: Agent's perception of regime legitimacy, equal
-                across agents.  Exogenous.
-            risk_aversion: Exogenous, drawn from U(0,1).
-            aggression : Exogenous, drawn from U(0,1).
-            threshold: if (grievance - (risk_aversion * arrest_probability)) >
-                threshold, go/remain Active
-            vision: number of cells in each direction (N, S, E and W) that
-                agent can inspect. Exogenous.
-            model: model instance
-        """
+
         super().__init__(unique_id, model)
         self.breed = "citizen"
         self.pos = pos
@@ -78,32 +35,18 @@ class Citizen(Agent):
         """
         Decide whether to activate, then move if applicable.
         """
-        """if self.jail_sentence:
-            self.jail_sentence -= 1
-            return  # no other changes or movements if agent is in jail.
-        """
-        # TODO: random variable to create deviant behaviour
-        """if self.jail_sentence:
-            # self.jail_sentence -= 1
-            self.model.arrested_agents.append(self)
-            return  # no other changes or movements if agent is in jail.
-        """
 
-        if self.risk_aversion < 0.05:  # and self.condition != "Active":
+        if self.risk_aversion < 0.05:
             self.condition = "Deviant"
-
-        # if self.aggression > 0.3:  # TODO
-        #    self.risk_aversion = self.risk_aversion / 2
 
         self.update_neighbors()
         self.update_estimated_arrest_probability()
-        self.update_agression_threshold_after_arrest()
+        self.update_aggression_threshold_after_arrest()
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            # TODO balance threshold so deviant behaviour shows up first and aggressive behaviour after
             self.condition
-            == "Quiescent"  # or self.condition == "Deviant" #turning this on shows some really interesting behaviour
+            == "Quiescent"
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
@@ -118,21 +61,13 @@ class Citizen(Agent):
         ):
             self.condition = "Quiescent"
 
-        '''swap = False
-        for agent in self.neighbors:
-            if agent.breed == "citizen" and agent.jail_sentence > 0:
-                swap = True
-                break
-
-        if self.susceptibility_to_aggression > 0.8 and swap:
-            self.condition = "Active"'''
 
         if self.model.movement and self.empty_neighbors:
             if self.direction_bias != "Random":
 
                 if len(self.empty_neighbors) > 0:
                     move = self.choose_direction(self.empty_neighbors)
-                    if move != None:
+                    if move is not None:
                         self.model.grid.move_agent(self, move)
             else:
                 new_pos = self.random.choice(self.empty_neighbors)
@@ -200,9 +135,7 @@ class Citizen(Agent):
             return self.random.choice(possible_moves)
 
     def update_neighbors(self):
-        """
-        Look around and see who my neighbors are
-        """
+
         self.neighborhood = self.model.grid.get_neighborhood(
             self.pos, moore=False, radius=1
         )
@@ -212,40 +145,29 @@ class Citizen(Agent):
         ]
 
     def update_estimated_arrest_probability(self):
-        """
-        Based on the ratio of cops to actives in my neighborhood, estimate the
-        p(Arrest | I go active).
 
-        """
         cops_in_vision = len([c for c in self.neighbors if c.breed == "cop"])
-        actives_in_vision = 1.0  # citizen counts herself
+        actives_in_vision = 1.0
         for c in self.neighbors:
             if (
                 c.breed == "citizen" and c.condition == "Active" and not c.jail_sentence
-            ):  # c.jail_sentence == 0
+            ):
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
         )
 
-    # TODO make neighbours within vision rather than immediate neighbours.
-    def update_agression_threshold_after_arrest(self):
-        """
-        makes the protesters get more easily aggressive if another agent is arrested in their
-        neighbourhood. Not completely sure if it makes sense as it makes the average aggression
-        lower as agents with lower aggression will just start joining in with the fight
+    def update_aggression_threshold_after_arrest(self):
 
-        """
-        # now checks the vision for the neighbors
         neighbors = self.model.grid.get_cell_list_contents(
             self.model.grid.get_neighborhood(self.pos, moore=False, radius=self.vision)
         )
-        cops_in_vision = len([c for c in neighbors if c.breed == "cop"])
-        arrestees_in_vision = 0  # citizen counts herself
+
+        arrestees_in_vision = 0
         for c in neighbors:
             if (
                 c.breed == "citizen" and c.condition == "Deviant" and c.jail_sentence
-            ):  # c.jail_sentence == 0
+            ):
                 arrestees_in_vision += 1
         if arrestees_in_vision > 0:
-            self.threshold /= 2  # need to tweak this parameter
+            self.threshold /= 2

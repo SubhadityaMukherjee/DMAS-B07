@@ -1,15 +1,4 @@
 import os
-from random import choices
-
-import numpy as np
-from mesa import Model
-from mesa.datacollection import DataCollector
-from mesa.space import Grid
-from mesa.time import RandomActivation
-
-from .agents.block import Block
-from .agents.citizen import Citizen
-from .agents.cop import Cop
 from .environments import *
 
 try:
@@ -21,21 +10,20 @@ except:
 class ProtestersVsPolice(Model):
     """
     Model 1 from "Modeling civil violence: An agent-based computational
-    approach," by Joshua Epstein.
+    approach," by Joshua Epstein, adapted by Ella Collins, Manon Heinhuis,
+    Subhaditya Mukherjee and Luke van den Wittenboer.
     http://www.pnas.org/content/99/suppl_3/7243.full
     Attributes:
         height: grid height
         width: grid width
         citizen_density: approximate % of cells occupied by citizens.
-        cop_density: approximate % of calles occupied by cops.
+        cop_density: approximate % of cells occupied by cops.
         citizen_vision: number of cells in each direction (N, S, E and W) that
             citizen can inspect
         cop_vision: number of cells in each direction (N, S, E and W) that cop
             can inspect
-        legitimacy:  (L) citizens' perception of regime legitimacy, equal
-            across all citizens
         max_jail_term: (J_max)
-        active_threshold: if (grievance - (risk_aversion * arrest_probability))
+        active_threshold: if (net risk - (risk_aversion * arrest_probability))
             > threshold, citizen rebels
         arrest_prob_constant: set to ensure agents make plausible arrest
             probability estimates
@@ -55,12 +43,11 @@ class ProtestersVsPolice(Model):
         barricade=4,
         citizen_vision=7,
         cop_vision=7,
-        legitimacy=0.8,
         jail_capacity=50,
-        active_threshold=0.9,  # original: 0.1
+        active_threshold=0.9,
         wrap="Wrap around",
         arrest_prob_constant=2.3,
-        aggression=0.7,  # TODO
+        aggression=0.7,
         direction_bias="none",
         movement=True,
         max_iters=1000,
@@ -75,7 +62,6 @@ class ProtestersVsPolice(Model):
         self.funmode = funmode
         self.citizen_vision = citizen_vision
         self.cop_vision = cop_vision
-        self.legitimacy = legitimacy
         self.jail_capacity = jail_capacity
         self.active_threshold = active_threshold
         self.arrest_prob_constant = arrest_prob_constant
@@ -220,3 +206,4 @@ class ProtestersVsPolice(Model):
             ]
         )
         self.avg_agg = str(round(np.average(count), 4))
+

@@ -62,7 +62,7 @@ def middle_block(self, typea="block"):
         blockProb = self.barricade / self.numTotalSpaces
         copProb = (
             1 - citizenProb - freeProb - blockProb
-        )  # really not legit but it works
+        )
     else:
         copProb = (free - (free * self.ratio)) / self.numTotalSpaces
         blockProb = num_blocks / self.numTotalSpaces
@@ -75,14 +75,13 @@ def middle_block(self, typea="block"):
             self.unique_id,
             self,
             (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
             threshold=self.active_threshold,
             vision=self.citizen_vision,
             aggression=self.aggression,
             direction_bias=self.direction_bias,
         )
+
         self.x, self.y = x, y
         self.cop = Cop(self.unique_id, self, (x, y), vision=self.cop_vision)
         self.block = Block(self.unique_id, self, (x, y))
@@ -117,9 +116,6 @@ def random_strategy(self):  # random distribution
             self.unique_id,
             self,
             (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
-            # risk_aversion=np.random.normal(),
             risk_aversion=self.random.random(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
@@ -131,13 +127,12 @@ def random_strategy(self):  # random distribution
 
         self.x, self.y = x, y
         rand = choices([0, 1, 2, 3], [freeProb, citizenProb, copProb, blockProb])
-        # rand = np.random.choice([0, 1, 2, 3], p=[freeProb, citizenProb, copProb, blockProb])
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
 
 
-# %%
+
 def side_strategy(self, side="left", agent="cop"):  # wall of cops
     """
     Left/right side : all of one type (eg all cops on the left)
@@ -167,8 +162,6 @@ def side_strategy(self, side="left", agent="cop"):  # wall of cops
             self.unique_id,
             self,
             (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
             direction_bias=self.direction_bias,
             threshold=self.active_threshold,
@@ -222,8 +215,6 @@ def streets(self):
             self.unique_id,
             self,
             (x, y),
-            hardship=self.random.random(),
-            regime_legitimacy=self.legitimacy,
             risk_aversion=self.random.random(),
             threshold=self.active_threshold,
             vision=self.citizen_vision,
