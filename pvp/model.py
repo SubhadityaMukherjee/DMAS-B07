@@ -1,4 +1,5 @@
 import os
+
 from .environments import *
 
 try:
@@ -206,4 +207,3 @@ class ProtestersVsPolice(Model):
             ]
         )
         self.avg_agg = str(round(np.average(count), 4))
-

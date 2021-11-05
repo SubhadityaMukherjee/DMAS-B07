@@ -5,7 +5,6 @@ from mesa import Agent
 
 
 class Citizen(Agent):
-
     def __init__(
         self,
         unique_id,
@@ -45,8 +44,7 @@ class Citizen(Agent):
 
         net_risk = self.risk_aversion * self.arrest_probability
         if (
-            self.condition
-            == "Quiescent"
+            self.condition == "Quiescent"
             and abs(net_risk - self.arrest_probability) > self.threshold
         ):
             self.condition = "Active"
@@ -60,7 +58,6 @@ class Citizen(Agent):
             and abs(net_risk - self.arrest_probability) <= self.threshold
         ):
             self.condition = "Quiescent"
-
 
         if self.model.movement and self.empty_neighbors:
             if self.direction_bias != "Random":
@@ -149,9 +146,7 @@ class Citizen(Agent):
         cops_in_vision = len([c for c in self.neighbors if c.breed == "cop"])
         actives_in_vision = 1.0
         for c in self.neighbors:
-            if (
-                c.breed == "citizen" and c.condition == "Active" and not c.jail_sentence
-            ):
+            if c.breed == "citizen" and c.condition == "Active" and not c.jail_sentence:
                 actives_in_vision += 1
         self.arrest_probability = 1 - math.exp(
             -1 * self.model.arrest_prob_constant * (cops_in_vision / actives_in_vision)
@@ -165,9 +160,7 @@ class Citizen(Agent):
 
         arrestees_in_vision = 0
         for c in neighbors:
-            if (
-                c.breed == "citizen" and c.condition == "Deviant" and c.jail_sentence
-            ):
+            if c.breed == "citizen" and c.condition == "Deviant" and c.jail_sentence:
                 arrestees_in_vision += 1
         if arrestees_in_vision > 0:
             self.threshold /= 2

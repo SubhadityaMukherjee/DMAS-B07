@@ -4,7 +4,6 @@ from mesa import Agent
 
 
 class Cop(Agent):
-
     def __init__(self, unique_id, model, pos, vision):
 
         super().__init__(unique_id, model)

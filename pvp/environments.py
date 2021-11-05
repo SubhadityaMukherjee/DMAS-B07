@@ -1,19 +1,9 @@
 # %%
-from functools import partial
 from random import choices
 
 import numpy as np
-from mesa import Model
-from mesa.datacollection import DataCollector
-from mesa.space import Grid
-from mesa.time import RandomActivation
-from numpy.random.mtrand import normal
-from sklearn.cluster import KMeans
 
 from .agents import *
-
-# from sklearn.datasets import make_blobs
-
 
 # %%
 
@@ -60,9 +50,7 @@ def middle_block(self, typea="block"):
     freeProb = (self.numTotalSpaces - free - num_blocks) / self.numTotalSpaces
     if typea == "cop":
         blockProb = self.barricade / self.numTotalSpaces
-        copProb = (
-            1 - citizenProb - freeProb - blockProb
-        )
+        copProb = 1 - citizenProb - freeProb - blockProb
     else:
         copProb = (free - (free * self.ratio)) / self.numTotalSpaces
         blockProb = num_blocks / self.numTotalSpaces
@@ -130,7 +118,6 @@ def random_strategy(self):  # random distribution
 
         agent_dict = {0: None, 1: self.citizen, 2: self.cop, 3: self.block}
         grid_adder(self, agent_dict[rand[0]])
-
 
 
 def side_strategy(self, side="left", agent="cop"):  # wall of cops
