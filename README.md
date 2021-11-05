@@ -3,6 +3,10 @@
 ## Requirements
 - pip install -r requirements.txt
 
+## How to run
+- python3 run.py
+- This should open a browser window with the required interface and parameters.
+
 ## Documentation
 - [Here](https://subhadityamukherjee.github.io/DMASB07-ProtestersVsPolice/)
 
